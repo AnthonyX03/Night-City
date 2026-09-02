@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Night City">
+<meta name="description" content="Night City — supervivencia en las calles. Offline.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Night City</title>
+<style>
+:root {
+  --bg: #050508; --panel: #0c0c14; --line: #00f0ff; --txt: #e0e8ff;
+  --accent: #00f0ff; --magenta: #ff2bd6; --danger: #ff3355; --gold: #ffcc33;
+  --bar-bg: #12121c; --enemy-bar: #ff3355; --player-bar: #00f0ff;
+  --purple: #a855f7; --green: #4ade80;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%; margin: 0;
+  background: var(--bg); color: var(--txt);
+  font-family: 'Segoe UI', system-ui, -apple-system, monospace;
+  overflow: hidden; -webkit-user-select: none; user-select: none;
+}
+button {
+  font: inherit; color: var(--accent); background: #0a1520; border: 1px solid var(--line);
+  padding: 8px 10px; cursor: pointer; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; font-size: 12px; border-radius: 3px;
+  transition: background .12s, transform .08s;
+}
+button:active { background: #0e2a3a; transform: scale(0.97); }
+button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+button.danger { border-color: var(--danger); color: var(--danger); }
+button.magenta { border-color: var(--magenta); color: var(--magenta); }
+button.gold { border-color: var(--gold); color: var(--gold); }
+button.green { border-color: var(--green); color: var(--green); }
+.app {
+  display: flex; flex-direction: column; height: 100%; height: 100dvh;
+  max-width: 720px; margin: 0 auto; padding: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom)); overflow: hidden; position: relative;
+}
+header {
+  display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--line);
+  padding: 4px 2px 8px; flex-shrink: 0;
+}
+header .header-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+h1 {
+  margin: 0; font-size: 15px; letter-spacing: 1.5px;
+  background: linear-gradient(90deg, var(--accent), var(--magenta));
+  -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800;
+}
+.header-actions { display: flex; gap: 4px; align-items: center; }
+.btn-icon { width: 36px; min-width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; align-items: center; font-variant-numeric: tabular-nums; }
+.stats span { white-space: nowrap; }
+.stat-eddies { color: var(--gold); } .stat-hp { color: var(--accent); } .stat-lvl { color: var(--magenta); }
+.panel { background: var(--panel); border: 1px solid #1a2a3a; border-radius: 4px; padding: 8px; }
+.panel-log { flex-shrink: 0; margin-bottom: 4px; max-height: 78px; overflow-y: auto; }
+.panel-main { flex: 1 1 auto; min-height: 0; overflow: hidden; margin-bottom: 4px; display: flex; flex-direction: column; }
+.log-title { font-weight: bold; color: var(--accent); font-size: 11px; margin-bottom: 2px; }
+#log { font-size: 11px; line-height: 1.35; color: #b0c0d8; }
+#log .sys { color: var(--accent); } #log .combat { color: var(--danger); }
+#log .loot { color: var(--gold); } #log .quest { color: var(--magenta); }
+.bottom-bar { flex-shrink: 0; display: flex; gap: 3px; }
+.tabs { display: flex; flex: 1; gap: 2px; overflow-x: auto; }
+.tabs button { flex: 1; min-width: 0; padding: 9px 3px; font-size: 10px; white-space: nowrap; }
+.tabs button.active { background: var(--accent); color: #000; font-weight: 700; box-shadow: 0 0 12px rgba(0,240,255,0.4); }
+.main-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 2px; }
+.version-badge { position: absolute; bottom: 2px; right: 6px; font-size: 9px; color: #3a4a5a; pointer-events: none; z-index: 5; }
+.district-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.district-card { background: #0a1018; border: 1px solid #1a3040; border-radius: 4px; padding: 10px 8px; cursor: pointer; }
+.district-card.current { border-color: var(--magenta); box-shadow: 0 0 12px rgba(255,43,214,0.25); }
+.district-name { font-weight: 700; color: var(--accent); font-size: 13px; }
+.district-desc { font-size: 10px; color: #8090a8; margin-top: 3px; }
+.district-danger { font-size: 10px; margin-top: 4px; }
+.danger-low { color: var(--green); } .danger-mid { color: var(--gold); } .danger-high { color: var(--danger); }
+.action-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.action-row button { flex: 1; min-width: 90px; }
+.combat-screen { text-align: center; }
+.combat-title { color: var(--danger); font-size: 16px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,51,85,0.5); }
+.combat-entity { margin: 8px 0; padding: 8px; background: #0a1018; border-radius: 4px; border: 1px solid #1a2a3a; text-align: left; }
+.combat-entity.enemy { border-color: #3a1520; } .combat-entity.player { border-color: #0a2a3a; }
+.combat-name { font-weight: 700; font-size: 13px; }
+.combat-name.enemy { color: var(--danger); } .combat-name.player { color: var(--accent); }
+.combat-hp-bar { height: 10px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; margin-top: 4px; border: 1px solid #222; }
+.combat-hp-fill { height: 100%; transition: width .25s; }
+.combat-hp-fill.enemy { background: var(--enemy-bar); } .combat-hp-fill.player { background: var(--player-bar); }
+.combat-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; justify-content: center; }
+.combat-actions button { min-width: 100px; padding: 12px 10px; }
+.item-list { display: flex; flex-direction: column; gap: 4px; }
+.item-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 6px; background: #0a1018; border: 1px solid #1a2a3a; border-radius: 3px; font-size: 12px; gap: 6px; }
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-weight: 600; }
+.item-meta { font-size: 10px; color: #7080a0; margin-top: 2px; line-height: 1.35; }
+.item-stats { font-size: 10px; color: var(--accent); margin-top: 2px; }
+.item-actions { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.item-actions button { padding: 5px 7px; font-size: 10px; }
+.equipped-tag { display: inline-block; font-size: 9px; padding: 1px 4px; border: 1px solid var(--accent); color: var(--accent); border-radius: 2px; margin-left: 4px; }
+.rarity-common { color: #a0b0c0; } .rarity-uncommon { color: #4ade80; } .rarity-rare { color: #60a5fa; }
+.rarity-epic { color: var(--purple); } .rarity-legendary { color: var(--gold); text-shadow: 0 0 6px rgba(255,204,51,0.4); }
+.subtabs { display: flex; gap: 3px; margin-bottom: 8px; flex-wrap: wrap; }
+.subtabs button { padding: 6px 9px; font-size: 10px; }
+.subtabs button.active { background: var(--magenta); color: #000; border-color: var(--magenta); }
+.char-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+.char-stat { background: #0a1018; border: 1px solid #1a2a3a; border-radius: 3px; padding: 8px; text-align: center; }
+.char-stat .label { font-size: 10px; color: #7080a0; } .char-stat .value { font-size: 16px; font-weight: 700; color: var(--accent); }
+.quest-card { background: #0a1018; border: 1px solid #1a2a3a; border-radius: 4px; padding: 10px; margin-bottom: 6px; }
+.quest-title { font-weight: 700; color: var(--magenta); font-size: 13px; }
+.quest-desc { font-size: 11px; color: #90a0b8; margin: 4px 0; }
+.quest-progress { font-size: 11px; color: var(--gold); } .quest-reward { font-size: 10px; color: #7080a0; margin-top: 4px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+.modal-content { background: var(--panel); border: 2px solid var(--accent); padding: 18px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 8px; box-shadow: 0 0 40px rgba(0,240,255,0.25); }
+.modal-content h2, .modal-content h3 { margin: 0 0 12px; color: var(--accent); }
+.hidden { display: none !important; }
+.progress-bar { background: var(--bar-bg); border: 1px solid #1a2a3a; height: 8px; border-radius: 2px; overflow: hidden; margin: 4px 0; }
+.progress-fill { height: 100%; background: var(--accent); transition: width .3s; }
+.loc-header { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.loc-flavor { font-size: 11px; color: #8090a8; margin-bottom: 10px; line-height: 1.4; }
+.name-input { width: 100%; padding: 12px; font-size: 16px; background: #0a1520; border: 1px solid var(--line); color: var(--txt); border-radius: 4px; margin: 12px 0; font-family: inherit; text-align: center; }
+.name-input:focus { outline: none; border-color: var(--magenta); box-shadow: 0 0 12px rgba(255,43,214,0.3); }
+.settings-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #1a2a3a; }
+.settings-row label { font-size: 13px; }
+input[type=range] { width: 120px; accent-color: var(--accent); }
+.chrome-card { background: #0a1018; border: 1px solid #1a2a3a; border-radius: 4px; padding: 10px; margin-bottom: 6px; }
+.chrome-card.owned { border-color: #2a4a3a; } .chrome-card.installed { border-color: var(--accent); box-shadow: 0 0 8px rgba(0,240,255,0.2); }
+@media (max-width: 400px) { .district-grid { grid-template-columns: 1fr; } .tabs button { font-size: 9px; padding: 8px 2px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-top">
+      <h1>NIGHT CITY</h1>
+      <div class="header-actions">
+        <span id="st-time" style="font-size:11px;color:#7080a0">20:47</span>
+        <button class="btn-icon" id="btn-settings" title="Ajustes">⚙</button>
+      </div>
+    </div>
+    <div class="stats">
+      <span class="stat-hp">HP <b id="st-hp">100</b>/<b id="st-maxhp">100</b></span>
+      <span class="stat-lvl">Nv <b id="st-lvl">1</b></span>
+      <span>XP <b id="st-xp">0</b>/<b id="st-maxxp">100</b></span>
+      <span class="stat-eddies">€$ <b id="st-eddies">500</b></span>
+      <span>ARM <b id="st-armor">0</b></span>
+    </div>
+    <div class="progress-bar" style="margin:2px 0 0"><div class="progress-fill" id="xp-bar" style="width:0%"></div></div>
+  </header>
+  <div class="panel panel-log"><div class="log-title">// NETLOG</div><div id="log"></div></div>
+  <div class="panel panel-main"><div class="main-content" id="main"></div></div>
+  <div class="bottom-bar">
+    <div class="tabs" id="tabs">
+      <button data-tab="map" class="active">Mapa</button>
+      <button data-tab="inv">Inv</button>
+      <button data-tab="chrome">Chrome</button>
+      <button data-tab="char">Pers.</button>
+      <button data-tab="apt">Apto.</button>
+      <button data-tab="shop">Mercado</button>
+    </div>
+  </div>
+  <div class="version-badge">Night City Version 0.0.5</div>
+</div>
+
+<div id="modal-name" class="modal-overlay hidden">
+  <div class="modal-content" style="text-align:center">
+    <h2>◈ NIGHT CITY</h2>
+    <p style="font-size:13px;color:#90a0b8;margin:0 0 8px">Las calles no perdonan. ¿Cómo te llamas, choom?</p>
+    <input type="text" id="input-name" class="name-input" maxlength="16" placeholder="Tu nombre..." autocomplete="off">
+    <button id="btn-start" style="width:100%;padding:14px;font-size:14px;font-weight:700">ENTRAR EN LA CIUDAD</button>
+  </div>
+</div>
+
+<div id="modal-settings" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3>⚙ Ajustes</h3>
+    <div class="settings-row"><label>Volumen efectos</label><input type="range" id="vol-sfx" min="0" max="100" value="70"></div>
+    <div class="action-row" style="flex-direction:column">
+      <button class="green" id="btn-save">💾 Guardar partida</button>
+      <button id="btn-load">📂 Cargar partida</button>
+      <button class="danger" id="btn-reset">🗑 Reiniciar partida</button>
+      <button id="btn-close-settings">Cerrar</button>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:#3a4a5a">Night City Version 0.0.5</div>
+  </div>
+</div>
+
+<script>
+const VERSION = '0.0.5';
+let audioCtx = null, sfxVol = 0.7;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, dur, type, volMul) {
+  if (sfxVol <= 0) return;
+  type = type || 'square'; volMul = volMul || 1;
+  try {
+    ensureAudio();
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(sfxVol * 0.15 * volMul, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
+}
+function sfxClick() { playTone(800, 0.04, 'square', 0.6); }
+function sfxTab() { playTone(600, 0.05, 'triangle', 0.5); }
+function sfxLoot() { playTone(1200, 0.08, 'sine', 0.7); playTone(1600, 0.1, 'sine', 0.4); }
+function sfxHurt() { playTone(120, 0.15, 'sawtooth', 1); }
+function sfxHeal() { playTone(500, 0.08, 'sine'); playTone(700, 0.1, 'sine', 0.5); }
+function sfxLevel() { playTone(600,0.1,'sine'); setTimeout(function(){playTone(800,0.1,'sine');},80); setTimeout(function(){playTone(1000,0.15,'sine');},160); }
+function sfxBuy() { playTone(900, 0.06, 'triangle'); }
+function sfxError() { playTone(150, 0.2, 'square', 0.5); }
+function sfxWin() { playTone(400,0.08,'sine'); setTimeout(function(){playTone(600,0.1,'sine');},60); setTimeout(function(){playTone(900,0.12,'sine');},140); }
+function sfxWeapon(subtype) {
+  if (subtype === 'melee') { playTone(220,0.06,'sawtooth',0.9); setTimeout(function(){playTone(180,0.08,'triangle',0.6);},40); }
+  else if (subtype === 'smg' || subtype === 'rifle') { playTone(300,0.04,'square',0.7); setTimeout(function(){playTone(280,0.04,'square',0.5);},50); setTimeout(function(){playTone(260,0.05,'square',0.4);},100); }
+  else if (subtype === 'shotgun') { playTone(100,0.12,'sawtooth',1); playTone(80,0.15,'square',0.6); }
+  else if (subtype === 'tech' || subtype === 'smart') { playTone(900,0.05,'sine',0.8); setTimeout(function(){playTone(700,0.08,'triangle',0.5);},40); }
+  else { playTone(350,0.05,'square',0.8); setTimeout(function(){playTone(200,0.06,'triangle',0.4);},30); }
+}
+
+const DISTRICTS = [
+  { id:'watson', name:'Watson', desc:'Kabuki, Little China y Northside.', danger:2, flavor:'Neones parpadeantes, humo de street food y el olor a ozono de los cables expuestos. Aquí empiezan la mayoría de las leyendas... y terminan muchas.' },
+  { id:'westbrook', name:'Westbrook', desc:'Japantown y Charter Hill.', danger:3, flavor:'Los Tyger Claws controlan las calles. Los rascacielos brillan mientras abajo se negocia con sangre.' },
+  { id:'citycenter', name:'City Center', desc:'Corpo Plaza y Downtown.', danger:4, flavor:'Torres de cristal, drones de seguridad y ejecutivos que no miran hacia abajo. Aquí el dinero habla más fuerte que las balas.' },
+  { id:'heywood', name:'Heywood', desc:'The Glen, Wellsprings, Vista del Rey.', danger:3, flavor:'Familia, honor y callejones. Los Valentinos protegen lo suyo... a su manera.' },
+  { id:'pacifica', name:'Pacifica', desc:'Coastview y West Wind Estate.', danger:5, flavor:'Hoteles abandonados, Voodoo Boys y un silencio que grita. Nadie viene aquí sin un motivo muy bueno.' },
+  { id:'santo', name:'Santo Domingo', desc:'Arroyo y Rancho Coronado.', danger:3, flavor:'Fábricas, smog y gente que sobrevive con las manos. Los 6th Street vigilan desde las azoteas.' },
+];
+
+const ENEMIES = [
+  { name:'Scav novato', level:1, hp:22, dmg:5, loot:[1,10,50], eddies:[15,40], gang:'Scavs' },
+  { name:'Maelstromer', level:2, hp:30, dmg:7, loot:[2,11,51], eddies:[25,55], gang:'Maelstrom' },
+  { name:'Tyger Claw', level:3, hp:38, dmg:9, loot:[3,12,52], eddies:[35,70], gang:'Tyger Claws' },
+  { name:'Valentino', level:3, hp:40, dmg:8, loot:[2,13,50], eddies:[30,65], gang:'Valentinos' },
+  { name:'6th Street', level:4, hp:45, dmg:10, loot:[4,14,51], eddies:[40,80], gang:'6th Street' },
+  { name:'Scav experimentado', level:5, hp:55, dmg:12, loot:[5,15,53], eddies:[50,100], gang:'Scavs' },
+  { name:'Maelstrom cyberado', level:6, hp:65, dmg:14, loot:[6,16,54], eddies:[60,120], gang:'Maelstrom' },
+  { name:'Tyger Claw élite', level:7, hp:75, dmg:16, loot:[7,17,55], eddies:[70,140], gang:'Tyger Claws' },
+  { name:'Corpo Security', level:8, hp:85, dmg:15, loot:[8,18,56], eddies:[80,160], gang:'Corpo' },
+  { name:'Animal', level:9, hp:100, dmg:18, loot:[9,19,57], eddies:[90,180], gang:'Animals' },
+  { name:'Voodoo Boy', level:10, hp:80, dmg:17, loot:[20,21,58], eddies:[100,190], gang:'Voodoo Boys' },
+  { name:'Netrunner hostil', level:10, hp:70, dmg:20, loot:[22,53,100], eddies:[100,200], gang:'Netrunner' },
+  { name:'Wraith', level:11, hp:95, dmg:19, loot:[23,24,59], eddies:[110,220], gang:'Wraiths' },
+  { name:'Cyberpsico inestable', level:12, hp:140, dmg:24, loot:[25,60,101], eddies:[150,300], gang:'Cyberpsico', legendary:true },
+  { name:'Arasaka Elite', level:14, hp:160, dmg:22, loot:[26,27,102], eddies:[200,350], gang:'Corpo', legendary:true },
+];
+
+const ITEMS = [
+  { id:1, name:'Unity', type:'weapon', subtype:'pistol', dmg:8, weight:1.5, value:80, rarity:'common', desc:'Pistola Militech estándar. Confiable en la calle.' },
+  { id:2, name:'Lexington', type:'weapon', subtype:'pistol', dmg:10, weight:1.8, value:120, rarity:'common', desc:'Arasaka. Disparo limpio y preciso.' },
+  { id:3, name:'Nue', type:'weapon', subtype:'pistol', dmg:12, weight:1.6, value:180, rarity:'uncommon', desc:'Kappa. Precisión japonesa de Japantown.' },
+  { id:28, name:'Liberty', type:'weapon', subtype:'pistol', dmg:14, weight:2.0, value:280, rarity:'uncommon', desc:'Potente. Retroceso alto, daño alto.' },
+  { id:29, name:'Overture', type:'weapon', subtype:'pistol', dmg:16, weight:2.2, value:350, rarity:'rare', desc:'Malorian Arms. Clásico de los edgerunners.' },
+  { id:30, name:'Death and Taxes', type:'weapon', subtype:'pistol', dmg:18, weight:1.9, value:480, rarity:'rare', desc:'Smart pistol. Busca cabezas.' },
+  { id:25, name:'Skippy', type:'weapon', subtype:'pistol', dmg:22, weight:1.4, value:1200, rarity:'legendary', desc:'IA con personalidad... y muy buen humor.' },
+  { id:31, name:'Kongou', type:'weapon', subtype:'pistol', dmg:20, weight:1.7, value:900, rarity:'epic', desc:'Icono de los Tyger Claws. Hermosa y letal.' },
+  { id:32, name:'La Chingona Dorada', type:'weapon', subtype:'pistol', dmg:24, weight:2.1, value:1400, rarity:'legendary', desc:'La pistola de Jackie. Leyenda viva.' },
+  { id:5, name:'Pulsar', type:'weapon', subtype:'smg', dmg:13, weight:2.8, value:280, rarity:'uncommon', desc:'Ráfagas rápidas. Control de calle.' },
+  { id:33, name:'Saratoga', type:'weapon', subtype:'smg', dmg:15, weight:3.0, value:320, rarity:'uncommon', desc:'Militech. Cadencia brutal.' },
+  { id:34, name:'Shingen', type:'weapon', subtype:'smg', dmg:17, weight:3.2, value:450, rarity:'rare', desc:'Smart SMG. Las balas encuentran el blanco.' },
+  { id:35, name:'Yinglong', type:'weapon', subtype:'smg', dmg:19, weight:2.9, value:600, rarity:'epic', desc:'Tech SMG. Perfora coberturas.' },
+  { id:4, name:'Copperhead', type:'weapon', subtype:'rifle', dmg:14, weight:3.5, value:250, rarity:'uncommon', desc:'Rifle de asalto sólido de la calle.' },
+  { id:7, name:'Ajax', type:'weapon', subtype:'rifle', dmg:17, weight:4.0, value:400, rarity:'rare', desc:'Potencia bruta a media distancia.' },
+  { id:8, name:'Widow Maker', type:'weapon', subtype:'rifle', dmg:20, weight:3.2, value:550, rarity:'rare', desc:'Precisión quirúrgica.' },
+  { id:36, name:'Masamune', type:'weapon', subtype:'rifle', dmg:22, weight:4.2, value:700, rarity:'epic', desc:'Arasaka. El estándar corpo.' },
+  { id:37, name:'Divided We Stand', type:'weapon', subtype:'rifle', dmg:21, weight:3.8, value:850, rarity:'epic', desc:'Ráfaga triple. Ideal para grupos.' },
+  { id:26, name:'Prejudice', type:'weapon', subtype:'rifle', dmg:28, weight:4.5, value:1600, rarity:'legendary', desc:'El arma de un solista legendario.' },
+  { id:38, name:'Carnage', type:'weapon', subtype:'shotgun', dmg:22, weight:5.0, value:380, rarity:'uncommon', desc:'Escopeta de combate. Devastadora de cerca.' },
+  { id:39, name:'Tinker Boy', type:'weapon', subtype:'shotgun', dmg:25, weight:4.8, value:520, rarity:'rare', desc:'Tech shotgun. Carga y perfora.' },
+  { id:40, name:'Ba Xing Chong', type:'weapon', subtype:'shotgun', dmg:32, weight:6.0, value:1800, rarity:'legendary', desc:'Smart shotgun explosiva. Caos puro.' },
+  { id:6, name:'Satori', type:'weapon', subtype:'melee', dmg:18, weight:2.2, value:450, rarity:'rare', desc:'Katana monomolecular. Silenciosa y letal.' },
+  { id:9, name:'Jinchu-maru', type:'weapon', subtype:'melee', dmg:26, weight:2.5, value:900, rarity:'epic', desc:'Katana legendaria de los Tyger Claws.' },
+  { id:41, name:'Cocktail Stick', type:'weapon', subtype:'melee', dmg:15, weight:1.8, value:300, rarity:'uncommon', desc:'Espada ligera. Rápida como el pensamiento.' },
+  { id:42, name:'Tinker', type:'weapon', subtype:'melee', dmg:20, weight:3.0, value:400, rarity:'rare', desc:'Machete industrial. Cortaypega.' },
+  { id:43, name:'Pariah', type:'weapon', subtype:'melee', dmg:24, weight:2.8, value:750, rarity:'epic', desc:'Cuchilla de mantis artesanal.' },
+  { id:44, name:'Errata', type:'weapon', subtype:'melee', dmg:30, weight:2.4, value:1500, rarity:'legendary', desc:'Katana térmica. Corta chrome como mantequilla.' },
+  { id:20, name:"Comrade's Hammer", type:'weapon', subtype:'tech', dmg:35, weight:5.5, value:1100, rarity:'epic', desc:'Revólver tech. Un disparo, un problema menos.' },
+  { id:22, name:'Breakthrough', type:'weapon', subtype:'tech', dmg:19, weight:3.0, value:650, rarity:'rare', desc:'Rifle tech. Atraviesa paredes.' },
+  { id:23, name:'Psalm 11:6', type:'weapon', subtype:'smart', dmg:18, weight:3.5, value:700, rarity:'epic', desc:'Smart rifle. Las balas rezan por ti.' },
+  { id:10, name:'Chaqueta de cuero', type:'armor', def:3, weight:2, value:60, rarity:'common', desc:'Protección básica de calle. Estilo eterno.' },
+  { id:11, name:'Armadura táctica ligera', type:'armor', def:6, weight:4, value:150, rarity:'uncommon', desc:'Placas balísticas discretas bajo la ropa.' },
+  { id:12, name:'Traje de netrunner', type:'armor', def:4, weight:1.5, value:200, rarity:'uncommon', desc:'Ligero, con blindaje EMI. Ideal para jackear.' },
+  { id:13, name:'Chaqueta Valentino', type:'armor', def:8, weight:5, value:280, rarity:'rare', desc:'Estilo, honor y placas de kevlar.' },
+  { id:14, name:'Chaleco 6th Street', type:'armor', def:7, weight:4.5, value:220, rarity:'uncommon', desc:'Patriota y resistente.' },
+  { id:15, name:'Armadura Scav', type:'armor', def:5, weight:3.5, value:120, rarity:'common', desc:'Piezas robadas y soldadas. Funciona... más o menos.' },
+  { id:16, name:'Exoesqueleto Maelstrom', type:'armor', def:12, weight:8, value:500, rarity:'rare', desc:'Cromado, amenazante y lleno de pinchos.' },
+  { id:17, name:'Kimono Tyger Claw', type:'armor', def:9, weight:3, value:380, rarity:'rare', desc:'Tradición y kevlar. Belleza mortal.' },
+  { id:18, name:'Traje Arasaka Executive', type:'armor', def:14, weight:6, value:700, rarity:'epic', desc:'Tecnología corpo de élite. Impresiona y protege.' },
+  { id:19, name:'Armadura de Animal', type:'armor', def:16, weight:10, value:650, rarity:'epic', desc:'Hecha para absorber golpes y devolverlos.' },
+  { id:21, name:'Poncho Voodoo', type:'armor', def:10, weight:3.5, value:420, rarity:'rare', desc:'Protección espiritual... y balística.' },
+  { id:24, name:'Chaqueta de nomad', type:'armor', def:11, weight:5.5, value:400, rarity:'rare', desc:'Polvo del Badlands cosido a la piel.' },
+  { id:27, name:'Traje NetWatch', type:'armor', def:15, weight:4, value:900, rarity:'epic', desc:'Blindaje digital y físico. Raro de ver en la calle.' },
+  { id:45, name:'Camiseta y jeans', type:'armor', def:1, weight:1, value:20, rarity:'common', desc:'Lo mínimo para no ir desnudo.' },
+  { id:46, name:'Abrigo de fixer', type:'armor', def:8, weight:4, value:350, rarity:'uncommon', desc:'Bolsillos profundos y presencia.' },
+  { id:47, name:'Armadura polyero', type:'armor', def:18, weight:9, value:800, rarity:'epic', desc:'Polímero militar. Cara y efectiva.' },
+  { id:48, name:'Traje de solista', type:'armor', def:20, weight:7, value:1200, rarity:'legendary', desc:'El uniforme de quien sobrevive a todo.' },
+  { id:49, name:'Samurai jacket', type:'armor', def:13, weight:3.5, value:950, rarity:'legendary', desc:'La chaqueta de la banda. Un icono.' },
+  { id:50, name:'MaxDoc Mk.1', type:'consumable', heal:25, weight:0.2, value:40, rarity:'common', desc:'Inyectable de primeros auxilios.', stackable:true },
+  { id:51, name:'MaxDoc Mk.2', type:'consumable', heal:40, weight:0.2, value:70, rarity:'common', desc:'Curación media de combate.', stackable:true },
+  { id:52, name:'MaxDoc Mk.3', type:'consumable', heal:55, weight:0.2, value:100, rarity:'uncommon', desc:'Curación avanzada.', stackable:true },
+  { id:53, name:'Bounce Back', type:'consumable', heal:35, weight:0.3, value:65, rarity:'common', desc:'Estimulante de combate. Te levanta.', stackable:true },
+  { id:54, name:'Glitter', type:'consumable', heal:15, weight:0.1, value:30, rarity:'common', desc:'Boost de adrenalina rápido.', stackable:true },
+  { id:55, name:'Blood Pump', type:'consumable', heal:70, weight:0.4, value:150, rarity:'rare', desc:'Regeneración intensa. Caro pero vale la pena.', stackable:true },
+  { id:56, name:'Rara Agua', type:'consumable', heal:10, weight:0.3, value:15, rarity:'common', desc:'Agua filtrada. Mejor que nada.', stackable:true },
+  { id:57, name:'Noodles de calle', type:'consumable', heal:20, weight:0.4, value:25, rarity:'common', desc:'Calientes y grasientos. Energía rápida.', stackable:true },
+  { id:58, name:'Injector de combate', type:'consumable', heal:45, weight:0.25, value:90, rarity:'uncommon', desc:'Uso militar. Efecto inmediato.', stackable:true },
+  { id:59, name:'Medkit de campo', type:'consumable', heal:80, weight:0.8, value:180, rarity:'rare', desc:'Kit completo. Restaura casi todo.', stackable:true },
+  { id:60, name:'SuperMaxDoc', type:'consumable', heal:100, weight:0.3, value:250, rarity:'epic', desc:'Lo mejor del mercado negro. Cura total.', stackable:true },
+  { id:100, name:'Óptica Kiroshi Mk.1', type:'cyberware', slot:'optics', weight:0.1, value:400, rarity:'rare', desc:'Mejora de precisión. +2 DMG.', bonusDmg:2, ability:'Precisión +2' },
+  { id:101, name:'Óptica Kiroshi Mk.2', type:'cyberware', slot:'optics', weight:0.1, value:800, rarity:'epic', desc:'Zoom y target analysis. +4 DMG.', bonusDmg:4, ability:'Precisión +4' },
+  { id:102, name:'Óptica Kiroshi Legendary', type:'cyberware', slot:'optics', weight:0.1, value:1800, rarity:'legendary', desc:'El top de Kiroshi. +6 DMG.', bonusDmg:6, ability:'Precisión +6' },
+  { id:103, name:'Sistema nervioso Reflex', type:'cyberware', slot:'nervous', weight:0.2, value:600, rarity:'epic', desc:'Reacciones más rápidas. +3 DMG.', bonusDmg:3, ability:'Reflejos +3' },
+  { id:104, name:'Kerenzikov', type:'cyberware', slot:'nervous', weight:0.2, value:1200, rarity:'legendary', desc:'Dilata el tiempo en combate. +5 DMG.', bonusDmg:5, ability:'Kerenzikov +5' },
+  { id:105, name:'Subdermal Armor', type:'cyberware', slot:'skin', weight:0.3, value:450, rarity:'rare', desc:'Blindaje bajo la piel. +4 DEF.', bonusDef:4, ability:'Piel reforzada +4' },
+  { id:106, name:'Subdermal Armor Mk.2', type:'cyberware', slot:'skin', weight:0.3, value:900, rarity:'epic', desc:'Capas densas. +7 DEF.', bonusDef:7, ability:'Piel reforzada +7' },
+  { id:107, name:'Pain Editor', type:'cyberware', slot:'nervous', weight:0.15, value:700, rarity:'epic', desc:'Reduce la percepción del dolor. +15 Max HP.', bonusHp:15, ability:'+15 Max HP' },
+  { id:108, name:'Blood Pump Chrome', type:'cyberware', slot:'circulatory', weight:0.25, value:850, rarity:'epic', desc:'Regeneración pasiva. +2 DEF, +10 HP.', bonusDef:2, bonusHp:10, ability:'Regen + HP' },
+  { id:109, name:'Mantis Blades', type:'cyberware', slot:'arms', weight:1.5, value:1500, rarity:'legendary', desc:'Cuchillas retráctiles. +8 DMG.', bonusDmg:8, ability:'Mantis +8 DMG' },
+  { id:110, name:'Gorilla Arms', type:'cyberware', slot:'arms', weight:2.0, value:1100, rarity:'epic', desc:'Fuerza bruta. +5 DMG, +3 DEF.', bonusDmg:5, bonusDef:3, ability:'Gorilla Arms' },
+  { id:111, name:'Monowire', type:'cyberware', slot:'arms', weight:0.4, value:1300, rarity:'legendary', desc:'Hilo monomolecular. +7 DMG.', bonusDmg:7, ability:'Monowire +7' },
+  { id:112, name:'Syn-Lungs', type:'cyberware', slot:'circulatory', weight:0.2, value:500, rarity:'rare', desc:'Mejor oxigenación. +10 Max HP.', bonusHp:10, ability:'+10 Max HP' },
+  { id:113, name:'Bio-Monitor', type:'cyberware', slot:'skin', weight:0.1, value:350, rarity:'uncommon', desc:'Alerta de vitales. +5 Max HP.', bonusHp:5, ability:'+5 Max HP' },
+  { id:114, name:'Fortified Ankles', type:'cyberware', slot:'legs', weight:0.5, value:400, rarity:'rare', desc:'Aterrizajes suaves. +2 DEF.', bonusDef:2, ability:'Tobillos +2 DEF' },
+  { id:115, name:'Reinforced Tendons', type:'cyberware', slot:'legs', weight:0.4, value:750, rarity:'epic', desc:'Doble salto. +3 DEF.', bonusDef:3, ability:'Tendones +3 DEF' },
+];
+
+const CHROME_SHOP = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115];
+const QUESTS_POOL = [
+  { id:'q1', title:'Limpieza de Scavs', desc:'Elimina a 3 Scavs. Un fixer de Watson paga bien.', type:'kill', target:3, gang:'Scavs', reward:{ eddies:200, xp:60, item:50 } },
+  { id:'q2', title:'Mensaje para los Claws', desc:'Derrota a 2 Tyger Claws. Alguien quiere mandar un aviso.', type:'kill', target:2, gang:'Tyger Claws', reward:{ eddies:250, xp:80, item:3 } },
+  { id:'q3', title:'Recolección de chrome', desc:'Consigue 2 piezas de cyberware.', type:'loot_cyber', target:2, reward:{ eddies:300, xp:100 } },
+  { id:'q4', title:'Leyenda de la calle', desc:'Alcanza el nivel 5.', type:'level', target:5, reward:{ eddies:500, xp:0, item:6 } },
+  { id:'q5', title:'Caza al psico', desc:'Derrota a un Cyberpsico.', type:'kill_legend', target:1, reward:{ eddies:800, xp:200, item:25 } },
+  { id:'q6', title:'Problemas en Pacifica', desc:'Elimina a 2 Voodoo Boys.', type:'kill', target:2, gang:'Voodoo Boys', reward:{ eddies:350, xp:120, item:52 } },
+  { id:'q7', title:'Deuda de Maelstrom', desc:'Derrota a 3 Maelstromers.', type:'kill', target:3, gang:'Maelstrom', reward:{ eddies:400, xp:140, item:16 } },
+  { id:'q8', title:'Contrato corpo', desc:'Elimina a 2 agentes corpo.', type:'kill', target:2, gang:'Corpo', reward:{ eddies:450, xp:150, item:18 } },
+];
+
+let P = {
+  name:'', hp:100, maxHp:100, lvl:1, xp:0, maxXp:100, eddies:500, district:'watson',
+  inv:[{id:1,qty:1},{id:10,qty:1},{id:50,qty:3},{id:53,qty:1}],
+  storage:[], equipped:{ weapon:1, armor:10, cyberware:[] }, ownedChrome:[],
+  quests:[], kills:{}, hours:20, minutes:47, combat:null, log:[], named:false,
+};
+let currentTab = 'map', invSub = 'all', aptSub = 'rest';
+
+function itemById(id) { return ITEMS.find(function(i){ return i.id === id; }); }
+function invQty(id) { var it = P.inv.find(function(x){ return x.id === id; }); return it ? it.qty : 0; }
+function addItem(id, qty, toStorage) {
+  qty = qty || 1; var def = itemById(id); if (!def) return;
+  var list = toStorage ? P.storage : P.inv;
+  if (def.stackable) {
+    var existing = list.find(function(x){ return x.id === id; });
+    if (existing) existing.qty += qty; else list.push({ id:id, qty:qty });
+  } else { for (var i=0;i<qty;i++) list.push({ id:id, qty:1 }); }
+}
+function removeItem(id, qty, fromStorage) {
+  qty = qty || 1; var list = fromStorage ? P.storage : P.inv;
+  var idx = list.findIndex(function(x){ return x.id === id; });
+  if (idx < 0) return false;
+  if (list[idx].qty > qty) list[idx].qty -= qty; else list.splice(idx, 1);
+  return true;
+}
+function getWeaponDmg() {
+  var w = itemById(P.equipped.weapon); var dmg = w ? w.dmg : 4;
+  (P.equipped.cyberware || []).forEach(function(cid){ var c = itemById(cid); if (c && c.bonusDmg) dmg += c.bonusDmg; });
+  return dmg;
+}
+function getArmorDef() {
+  var a = itemById(P.equipped.armor); var def = a ? a.def : 0;
+  (P.equipped.cyberware || []).forEach(function(cid){ var c = itemById(cid); if (c && c.bonusDef) def += c.bonusDef; });
+  return def;
+}
+function getCyberHpBonus() {
+  var bonus = 0;
+  (P.equipped.cyberware || []).forEach(function(cid){ var c = itemById(cid); if (c && c.bonusHp) bonus += c.bonusHp; });
+  return bonus;
+}
+function recalcMaxHp() {
+  P.maxHp = 100 + (P.lvl - 1) * 12 + getCyberHpBonus();
+  if (P.hp > P.maxHp) P.hp = P.maxHp;
+}
+function save() { try { localStorage.setItem('nightcity_v005', JSON.stringify(P)); return true; } catch(e){ return false; } }
+function load() {
+  try {
+    var raw = localStorage.getItem('nightcity_v005'); if (!raw) return false;
+    var data = JSON.parse(raw); Object.assign(P, data);
+    if (!P.storage) P.storage = []; if (!P.ownedChrome) P.ownedChrome = [];
+    if (!P.equipped.cyberware) P.equipped.cyberware = []; if (!P.quests) P.quests = [];
+    recalcMaxHp(); return true;
+  } catch(e){ return false; }
+}
+function logMsg(msg, cls) {
+  P.log.unshift({ msg:msg, cls:cls||'', t:Date.now() });
+  if (P.log.length > 50) P.log.pop();
+  renderLog();
+}
+function renderLog() {
+  var el = document.getElementById('log'); if (!el) return;
+  el.innerHTML = P.log.slice(0,7).map(function(l){ return '<div class="'+(l.cls||'')+'">'+l.msg+'</div>'; }).join('');
+}
+function updateStats() {
+  document.getElementById('st-hp').textContent = Math.max(0, Math.floor(P.hp));
+  document.getElementById('st-maxhp').textContent = P.maxHp;
+  document.getElementById('st-lvl').textContent = P.lvl;
+  document.getElementById('st-xp').textContent = P.xp;
+  document.getElementById('st-maxxp').textContent = P.maxXp;
+  document.getElementById('st-eddies').textContent = P.eddies;
+  document.getElementById('st-armor').textContent = getArmorDef();
+  document.getElementById('xp-bar').style.width = Math.min(100, (P.xp / P.maxXp) * 100) + '%';
+  document.getElementById('st-time').textContent = String(P.hours).padStart(2,'0')+':'+String(P.minutes).padStart(2,'0');
+}
+function addXp(amount) {
+  P.xp += amount; logMsg('+'+amount+' XP', 'sys');
+  while (P.xp >= P.maxXp) {
+    P.xp -= P.maxXp; P.lvl++; P.maxXp = Math.floor(P.maxXp * 1.35);
+    recalcMaxHp(); P.hp = P.maxHp; sfxLevel();
+    logMsg('¡NIVEL '+P.lvl+'! Max HP aumentado. Night City tiembla un poco más.', 'quest');
+    checkQuests();
+  }
+  updateStats();
+}
+function heal(amount) { P.hp = Math.min(P.maxHp, P.hp + amount); updateStats(); }
+function advanceTime(mins) {
+  P.minutes += mins;
+  while (P.minutes >= 60) { P.minutes -= 60; P.hours++; }
+  if (P.hours >= 24) P.hours -= 24;
+  updateStats();
+}
+function giveStarterQuests() {
+  P.quests = QUESTS_POOL.slice(0,4).map(function(q){ return Object.assign({}, q, { progress:0, done:false }); });
+}
+function acceptNewQuest() {
+  var notDone = QUESTS_POOL.filter(function(pq){ return !P.quests.some(function(q){ return q.id === pq.id && q.done; }); });
+  var pool = notDone.length ? notDone : QUESTS_POOL;
+  var pick = pool[Math.floor(Math.random()*pool.length)];
+  if (P.quests.some(function(q){ return q.id === pick.id && !q.done; })) { logMsg('Ese gig ya está activo.', 'sys'); return; }
+  var newQ = Object.assign({}, pick, { progress:0, done:false });
+  var doneIdx = P.quests.findIndex(function(q){ return q.done; });
+  if (doneIdx >= 0) P.quests[doneIdx] = newQ;
+  else if (P.quests.length < 5) P.quests.push(newQ);
+  else { logMsg('Ya tienes demasiados gigs activos.', 'sys'); return; }
+  logMsg('Nuevo gig: '+newQ.title, 'quest'); sfxClick(); save(); render();
+}
+function checkQuests() {
+  P.quests.forEach(function(q){
+    if (q.done) return;
+    if (q.type === 'level' && P.lvl >= q.target) { q.progress = q.target; completeQuest(q); }
+  });
+}
+function onKill(enemy) {
+  var g = enemy.gang || 'other';
+  P.kills[g] = (P.kills[g]||0) + 1;
+  P.quests.forEach(function(q){
+    if (q.done) return;
+    if (q.type === 'kill' && q.gang === g) {
+      q.progress = Math.min(q.target, (q.progress||0)+1);
+      if (q.progress >= q.target) completeQuest(q);
+    }
+    if (q.type === 'kill_legend' && enemy.legendary) {
+      q.progress = Math.min(q.target, (q.progress||0)+1);
+      if (q.progress >= q.target) completeQuest(q);
+    }
+  });
+}
+function completeQuest(q) {
+  if (q.done) return; q.done = true; var r = q.reward;
+  if (r.eddies) { P.eddies += r.eddies; logMsg('+'+r.eddies+' €$', 'loot'); }
+  if (r.xp) addXp(r.xp);
+  if (r.item) { addItem(r.item, r.qty||1); logMsg('Obtenido: '+itemById(r.item).name, 'loot'); }
+  sfxWin(); logMsg('GIG COMPLETADO: '+q.title, 'quest'); save();
+}
+
+function startCombat(enemyTemplate) {
+  var e = Object.assign({}, enemyTemplate);
+  e.hp = e.hp + Math.floor(Math.random()*8); e.maxHp = e.hp; e.droppedLoot = [];
+  if (e.loot && e.loot.length) {
+    var numDrops = 1 + (Math.random() < 0.35 ? 1 : 0);
+    var shuffled = e.loot.slice().sort(function(){ return Math.random()-0.5; });
+    for (var i=0; i<Math.min(numDrops, shuffled.length); i++) {
+      if (Math.random() < 0.75) e.droppedLoot.push(shuffled[i]);
+    }
+  }
+  P.combat = { enemy:e, turn:'player' };
+  logMsg('¡Combate! '+e.name+' aparece.', 'combat'); render();
+}
+function combatAttack() {
+  if (!P.combat || P.combat.turn !== 'player') return;
+  var e = P.combat.enemy, w = itemById(P.equipped.weapon);
+  sfxWeapon(w ? (w.subtype||'pistol') : 'pistol');
+  var dmg = Math.max(1, getWeaponDmg() + Math.floor(Math.random()*5) - 1);
+  e.hp -= dmg;
+  logMsg('Atacas a '+e.name+' con '+(w?w.name:'puños')+' por '+dmg+' de daño.', 'combat');
+  if (e.hp <= 0) { endCombat(true); return; }
+  P.combat.turn = 'enemy'; setTimeout(enemyTurn, 450); render();
+}
+function combatHeal() {
+  if (!P.combat || P.combat.turn !== 'player') return;
+  var meds = [60,59,55,52,51,53,50,58,54], used = false;
+  for (var i=0;i<meds.length;i++) {
+    if (invQty(meds[i]) > 0) {
+      var it = itemById(meds[i]); removeItem(meds[i],1); heal(it.heal); sfxHeal();
+      logMsg('Usas '+it.name+' (+'+it.heal+' HP).', 'sys'); used = true; break;
+    }
+  }
+  if (!used) { sfxError(); logMsg('No tienes estimulantes.', 'sys'); return; }
+  P.combat.turn = 'enemy'; setTimeout(enemyTurn, 450); render();
+}
+function combatFlee() {
+  if (!P.combat) return;
+  if (Math.random() < 0.55) { logMsg('Escapas por los callejones.', 'sys'); sfxClick(); P.combat = null; advanceTime(5); render(); }
+  else { logMsg('¡No puedes escapar!', 'combat'); sfxError(); P.combat.turn = 'enemy'; setTimeout(enemyTurn, 400); render(); }
+}
+function enemyTurn() {
+  if (!P.combat) return;
+  var e = P.combat.enemy, raw = e.dmg + Math.floor(Math.random()*4);
+  var dmg = Math.max(1, raw - Math.floor(getArmorDef()*0.6));
+  P.hp -= dmg; sfxHurt(); logMsg(e.name+' te golpea por '+dmg+' de daño.', 'combat');
+  if (P.hp <= 0) {
+    P.hp = 0; logMsg('Has caído... Un fixer te arrastra a un ripperdoc. Pierdes eddies.', 'combat');
+    P.eddies = Math.max(0, P.eddies - Math.floor(P.eddies*0.15));
+    P.hp = Math.floor(P.maxHp*0.4); P.combat = null; advanceTime(60); save(); render(); return;
+  }
+  P.combat.turn = 'player'; updateStats(); render();
+}
+function endCombat(won) {
+  var e = P.combat.enemy; P.combat = null;
+  if (won) {
+    sfxWin(); logMsg('Has derrotado a '+e.name+'.', 'combat');
+    var gain = e.eddies[0] + Math.floor(Math.random()*(e.eddies[1]-e.eddies[0]+1));
+    P.eddies += gain; logMsg('+'+gain+' €$', 'loot'); addXp(12 + e.level*4);
+    if (e.droppedLoot && e.droppedLoot.length) {
+      e.droppedLoot.forEach(function(lid){
+        addItem(lid,1); var def = itemById(lid); logMsg('Loot: '+def.name, 'loot'); sfxLoot();
+        if (def && def.type === 'cyberware') {
+          P.quests.forEach(function(q){
+            if (q.type === 'loot_cyber' && !q.done) {
+              q.progress = (q.progress||0)+1;
+              if (q.progress >= q.target) completeQuest(q);
+            }
+          });
+        }
+      });
+    } else logMsg('No llevaba nada útil encima.', 'sys');
+    onKill(e); advanceTime(8);
+  }
+  save(); render();
+}
+
+function explore() {
+  if (P.combat) return; sfxClick();
+  advanceTime(12 + Math.floor(Math.random()*18));
+  var dist = DISTRICTS.find(function(d){ return d.id === P.district; });
+  var roll = Math.random(), dangerMod = (dist.danger||2)*0.07;
+  if (roll < 0.38 + dangerMod) {
+    var maxLvl = Math.min(P.lvl+3, 15);
+    var pool = ENEMIES.filter(function(e){ return e.level <= maxLvl && e.level >= Math.max(1, P.lvl-3); });
+    var enemy = pool[Math.floor(Math.random()*pool.length)] || ENEMIES[0];
+    if ((dist.danger >= 5 && Math.random() < 0.14) || Math.random() < 0.06)
+      enemy = ENEMIES.find(function(e){ return e.legendary; }) || enemy;
+    startCombat(enemy);
+  } else if (roll < 0.52) {
+    var gain = 12 + Math.floor(Math.random()*45) + dist.danger*6;
+    P.eddies += gain; sfxLoot(); logMsg('Encuentras '+gain+' €$ en un cadáver / contenedor.', 'loot'); save(); render();
+  } else if (roll < 0.68) {
+    var pool = ITEMS.filter(function(i){ return (i.rarity==='common'||i.rarity==='uncommon') && (i.type==='consumable'||i.type==='weapon'||i.type==='armor'); });
+    var it = pool[Math.floor(Math.random()*pool.length)];
+    addItem(it.id,1); sfxLoot(); logMsg('Encuentras: '+it.name, 'loot'); save(); render();
+  } else if (roll < 0.78) { logMsg('Calles vacías... solo el zumbido de los neones y un drone lejano.', 'sys'); render(); }
+  else if (roll < 0.88) {
+    if (P.eddies >= 40) { P.eddies -= 40; addItem(50,1); logMsg('Un vendedor ambulante te vende un MaxDoc Mk.1 por 40 €$.', 'loot'); sfxBuy(); }
+    else logMsg('Un vendedor te ofrece algo, pero no te llega el dinero.', 'sys');
+    save(); render();
+  } else if (roll < 0.94) { logMsg('Oyes disparos a lo lejos. Prefieres no investigar... esta vez.', 'sys'); render(); }
+  else {
+    var cheapChrome = [113,112,100,105], cid = cheapChrome[Math.floor(Math.random()*cheapChrome.length)];
+    if (!P.ownedChrome.includes(cid) && invQty(cid)===0) { addItem(cid,1); sfxLoot(); logMsg('¡Encuentras chrome abandonado: '+itemById(cid).name+'!', 'loot'); }
+    else { var g2 = 30+Math.floor(Math.random()*50); P.eddies += g2; logMsg('Encuentras '+g2+' €$ escondidos.', 'loot'); }
+    save(); render();
+  }
+  updateStats();
+}
+function restAtMotel() {
+  if (P.combat) return;
+  if (P.eddies < 40) { sfxError(); logMsg('No tienes suficientes eddies para un motel.', 'sys'); return; }
+  P.eddies -= 40; P.hp = P.maxHp; advanceTime(300); sfxHeal();
+  logMsg('Descansas en un motel de mala muerte. HP restaurado.', 'sys'); save(); render();
+}
+function travelTo(id) {
+  if (P.combat || id === P.district) return; sfxClick(); P.district = id;
+  advanceTime(20 + Math.floor(Math.random()*25));
+  var d = DISTRICTS.find(function(x){ return x.id === id; });
+  logMsg('Viajas a '+d.name+'.', 'sys');
+  if (Math.random() < 0.18) {
+    var pool = ENEMIES.filter(function(e){ return e.level <= P.lvl+2; });
+    startCombat(pool[Math.floor(Math.random()*pool.length)] || ENEMIES[0]);
+  } else { save(); render(); }
+}
+function equipItem(id) {
+  var def = itemById(id); if (!def) return; sfxClick();
+  if (def.type === 'weapon') P.equipped.weapon = id;
+  else if (def.type === 'armor') P.equipped.armor = id;
+  save(); render();
+}
+function useItem(id) {
+  var def = itemById(id); if (!def || def.type !== 'consumable' || invQty(id)<=0) return;
+  removeItem(id,1); heal(def.heal||0); sfxHeal(); logMsg('Usas '+def.name+' (+'+def.heal+' HP).', 'sys'); save(); render();
+}
+function installChrome(id) {
+  var def = itemById(id); if (!def || def.type !== 'cyberware') return;
+  if (!P.ownedChrome.includes(id) && invQty(id)===0) { sfxError(); logMsg('No posees ese chrome.', 'sys'); return; }
+  if (!P.equipped.cyberware) P.equipped.cyberware = [];
+  var sameSlot = P.equipped.cyberware.find(function(cid){ var c=itemById(cid); return c && c.slot===def.slot; });
+  if (sameSlot) P.equipped.cyberware = P.equipped.cyberware.filter(function(c){ return c !== sameSlot; });
+  if (P.equipped.cyberware.length >= 4) { sfxError(); logMsg('Máximo 4 piezas de chrome. Desinstala una primero.', 'sys'); return; }
+  if (!P.equipped.cyberware.includes(id)) {
+    P.equipped.cyberware.push(id);
+    if (invQty(id)>0) { removeItem(id,1); if (!P.ownedChrome.includes(id)) P.ownedChrome.push(id); }
+    recalcMaxHp(); sfxBuy(); logMsg('Chrome instalado: '+def.name+' ('+(def.ability||'')+')', 'sys');
+  }
+  save(); render();
+}
+function uninstallChrome(id) {
+  if (!P.equipped.cyberware) return;
+  P.equipped.cyberware = P.equipped.cyberware.filter(function(c){ return c !== id; });
+  if (!P.ownedChrome.includes(id)) P.ownedChrome.push(id);
+  recalcMaxHp(); sfxClick(); logMsg('Chrome desinstalado.', 'sys'); save(); render();
+}
+function buyChrome(id) {
+  var def = itemById(id); if (!def) return;
+  if (P.ownedChrome.includes(id) || invQty(id)>0) { sfxError(); logMsg('Ya posees ese chrome.', 'sys'); return; }
+  if (P.eddies < def.value) { sfxError(); logMsg('No tienes suficientes eddies.', 'sys'); return; }
+  P.eddies -= def.value; P.ownedChrome.push(id); sfxBuy();
+  logMsg('Chrome adquirido: '+def.name+' (−'+def.value+' €$)', 'loot'); save(); render();
+}
+var SHOP_WEAPONS = [1,2,3,4,5,6,7,8,28,29,33,34,36,38,41,42];
+var SHOP_ARMOR = [10,11,12,13,14,15,16,17,45,46];
+var SHOP_CONSUMABLES = [50,51,52,53,54,55,56,57,58];
+function buyItem(id) {
+  var def = itemById(id); if (!def) return;
+  if (P.eddies < def.value) { sfxError(); logMsg('No tienes suficientes eddies.', 'sys'); return; }
+  P.eddies -= def.value; addItem(id,1); sfxBuy(); logMsg('Comprado: '+def.name+' (−'+def.value+' €$)', 'loot'); save(); render();
+}
+function sellItem(id, fromStorage) {
+  var def = itemById(id); if (!def) return;
+  var qty = fromStorage ? ((P.storage.find(function(x){return x.id===id;})||{}).qty||0) : invQty(id);
+  if (qty <= 0) return;
+  if (!fromStorage && (P.equipped.weapon===id || P.equipped.armor===id)) { sfxError(); logMsg('No puedes vender algo equipado.', 'sys'); return; }
+  if ((P.equipped.cyberware||[]).includes(id)) { sfxError(); logMsg('Desinstala el chrome primero.', 'sys'); return; }
+  var price = Math.floor(def.value * 0.4);
+  removeItem(id,1,fromStorage); P.eddies += price; sfxBuy();
+  logMsg('Vendido: '+def.name+' (+'+price+' €$)', 'loot'); save(); render();
+}
+function moveToStorage(id) {
+  if (invQty(id)<=0) return;
+  if (P.equipped.weapon===id || P.equipped.armor===id) { sfxError(); logMsg('Desequipa antes de guardar.', 'sys'); return; }
+  removeItem(id,1); addItem(id,1,true); sfxClick();
+  logMsg('Guardado en el apartamento: '+itemById(id).name, 'sys'); save(); render();
+}
+function moveFromStorage(id) {
+  if (!P.storage.find(function(x){return x.id===id;})) return;
+  removeItem(id,1,true); addItem(id,1); sfxClick();
+  logMsg('Sacado del almacenamiento: '+itemById(id).name, 'sys'); save(); render();
+}
+function restAtApartment() {
+  P.hp = P.maxHp; advanceTime(360); sfxHeal();
+  logMsg('Descansas en tu apartamento. HP al máximo. Sueñas con neones.', 'sys'); save(); render();
+}
+
+function rarityClass(r) { return 'rarity-'+(r||'common'); }
+function render() {
+  updateStats(); renderLog();
+  var main = document.getElementById('main');
+  if (P.combat) { renderCombat(main); return; }
+  if (currentTab==='map') renderMap(main);
+  else if (currentTab==='inv') renderInv(main);
+  else if (currentTab==='chrome') renderChrome(main);
+  else if (currentTab==='char') renderChar(main);
+  else if (currentTab==='apt') renderApt(main);
+  else if (currentTab==='shop') renderShop(main);
+}
+function renderCombat(main) {
+  var e = P.combat.enemy, w = itemById(P.equipped.weapon);
+  var ePct = Math.max(0,(e.hp/e.maxHp)*100), pPct = Math.max(0,(P.hp/P.maxHp)*100);
+  main.innerHTML = '<div class="combat-screen"><div class="combat-title">⚔ COMBATE</div>'+
+    '<div class="combat-entity enemy"><div class="combat-name enemy">'+e.name+'</div>'+
+    '<div style="font-size:10px;color:#8090a8">'+(e.gang||'')+' · Nv '+e.level+'</div>'+
+    '<div class="combat-hp-bar"><div class="combat-hp-fill enemy" style="width:'+ePct+'%"></div></div>'+
+    '<div style="font-size:11px;margin-top:2px">'+Math.max(0,Math.floor(e.hp))+' / '+e.maxHp+'</div></div>'+
+    '<div class="combat-entity player"><div class="combat-name player">'+P.name+'</div>'+
+    '<div style="font-size:10px;color:#8090a8">'+(w?w.name:'Puños')+' · ARM '+getArmorDef()+' · DMG '+getWeaponDmg()+'</div>'+
+    '<div class="combat-hp-bar"><div class="combat-hp-fill player" style="width:'+pPct+'%"></div></div>'+
+    '<div style="font-size:11px;margin-top:2px">'+Math.floor(P.hp)+' / '+P.maxHp+'</div></div>'+
+    '<div class="combat-actions"><button onclick="combatAttack()" '+(P.combat.turn!=='player'?'disabled':'')+'>ATACAR</button>'+
+    '<button onclick="combatHeal()" '+(P.combat.turn!=='player'?'disabled':'')+'>CURAR</button>'+
+    '<button class="danger" onclick="combatFlee()" '+(P.combat.turn!=='player'?'disabled':'')+'>HUIR</button></div></div>';
+}
+function renderMap(main) {
+  var dist = DISTRICTS.find(function(d){ return d.id===P.district; });
+  var dClass = dist.danger<=2?'danger-low':dist.danger<=3?'danger-mid':'danger-high';
+  var dLabel = dist.danger<=2?'Bajo':dist.danger<=3?'Medio':'Alto';
+  main.innerHTML = '<div class="loc-header"><span>'+dist.name+'</span><span class="district-danger '+dClass+'">Peligro: '+dLabel+'</span></div>'+
+    '<div class="loc-flavor">'+dist.flavor+'</div><div class="action-row">'+
+    '<button onclick="explore()">Explorar calles</button><button onclick="restAtMotel()">Motel (40€$)</button></div>'+
+    '<div style="font-size:12px;color:var(--accent);margin:12px 0 6px">Distritos de Night City</div><div class="district-grid">'+
+    DISTRICTS.map(function(d){
+      return '<div class="district-card '+(d.id===P.district?'current':'')+'" onclick="travelTo(\''+d.id+'\')">'+
+        '<div class="district-name">'+d.name+'</div><div class="district-desc">'+d.desc+'</div>'+
+        '<div class="district-danger '+(d.danger<=2?'danger-low':d.danger<=3?'danger-mid':'danger-high')+'">'+('▲'.repeat(d.danger))+'</div></div>';
+    }).join('')+'</div>';
+}
+function renderInv(main) {
+  var filters = [{id:'all',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Atuendos'},{id:'consumable',label:'Curativos'},{id:'cyberware',label:'Chrome'}];
+  var html = '<div class="subtabs">'+filters.map(function(f){
+    return '<button class="'+(invSub===f.id?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
+  }).join('')+'</div><div class="item-list">';
+  var items = P.inv.map(function(slot){ return {id:slot.id, qty:slot.qty, def:itemById(slot.id)}; }).filter(function(x){ return x.def; });
+  var filtered = invSub==='all' ? items : items.filter(function(x){ return x.def.type===invSub; });
+  if (!filtered.length) html += '<div style="color:#7080a0;padding:12px">Nada aquí.</div>';
+  else filtered.forEach(function(slot){
+    var id=slot.id, qty=slot.qty, def=slot.def;
+    var eqW=P.equipped.weapon===id, eqA=P.equipped.armor===id, eqC=(P.equipped.cyberware||[]).includes(id);
+    var eqTag=(eqW||eqA||eqC)?'<span class="equipped-tag">EQUIP</span>':'';
+    var statsLine = def.type==='weapon'?'DMG '+def.dmg+' · '+(def.subtype||'arma')+' · '+def.weight+' kg':
+      def.type==='armor'?'DEF '+def.def+' · '+def.weight+' kg':
+      def.type==='consumable'?'+'+def.heal+' HP': (def.ability||'');
+    var actions = '';
+    if (def.type==='weapon'||def.type==='armor') actions = (eqW||eqA)?'<button disabled>Equipado</button>':'<button onclick="equipItem('+id+')">Equipar</button>';
+    else if (def.type==='cyberware') actions = eqC?'<button class="danger" onclick="uninstallChrome('+id+')">Quitar</button>':'<button onclick="installChrome('+id+')">Instalar</button>';
+    else if (def.type==='consumable') actions = '<button onclick="useItem('+id+')">Usar</button>';
+    actions += '<button class="gold" onclick="sellItem('+id+')">Vender</button><button onclick="moveToStorage('+id+')">📦</button>';
+    html += '<div class="item-row"><div class="item-info"><div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(qty>1?' ×'+qty:'')+eqTag+'</div>'+
+      '<div class="item-meta">'+def.desc+'</div><div class="item-stats">'+statsLine+' · Valor '+def.value+' €$</div></div>'+
+      '<div class="item-actions">'+actions+'</div></div>';
+  });
+  html += '</div>'; main.innerHTML = html;
+}
+function renderChrome(main) {
+  var html = '<div style="font-size:13px;color:var(--magenta);margin-bottom:6px">◈ Ripperdoc — Chrome</div>'+
+    '<div style="font-size:11px;color:#8090a8;margin-bottom:10px">Compra e instala cyberware. Máx. 4 piezas. Una por slot.</div>'+
+    '<div style="font-size:12px;color:var(--accent);margin-bottom:6px">Instalado ('+(P.equipped.cyberware||[]).length+'/4)</div>';
+  var installed = (P.equipped.cyberware||[]).map(itemById).filter(Boolean);
+  if (!installed.length) html += '<div style="color:#7080a0;font-size:11px;margin-bottom:10px">Ningún chrome instalado.</div>';
+  else installed.forEach(function(c){
+    html += '<div class="chrome-card installed"><div class="item-name '+rarityClass(c.rarity)+'">'+c.name+'</div>'+
+      '<div class="item-meta">'+c.desc+'</div><div class="item-stats">'+(c.ability||'')+' · Slot: '+c.slot+'</div>'+
+      '<button class="danger" style="margin-top:6px" onclick="uninstallChrome('+c.id+')">Desinstalar</button></div>';
+  });
+  html += '<div style="font-size:12px;color:var(--gold);margin:12px 0 6px">Disponible para comprar / instalar</div>';
+  CHROME_SHOP.forEach(function(id){
+    var c = itemById(id), owned = P.ownedChrome.includes(id)||invQty(id)>0, inst=(P.equipped.cyberware||[]).includes(id);
+    html += '<div class="chrome-card '+(inst?'installed':owned?'owned':'')+'"><div class="item-name '+rarityClass(c.rarity)+'">'+c.name+'</div>'+
+      '<div class="item-meta">'+c.desc+'</div><div class="item-stats">'+(c.ability||'')+' · Slot: '+c.slot+' · '+c.value+' €$</div><div style="margin-top:6px;display:flex;gap:4px">';
+    if (inst) html += '<button disabled>Instalado</button>';
+    else if (owned) html += '<button class="green" onclick="installChrome('+id+')">Instalar</button>';
+    else html += '<button class="gold" onclick="buyChrome('+id+')">Comprar '+c.value+'€$</button>';
+    html += '</div></div>';
+  });
+  main.innerHTML = html;
+}
+function renderChar(main) {
+  var w = itemById(P.equipped.weapon), a = itemById(P.equipped.armor);
+  var cybers = (P.equipped.cyberware||[]).map(itemById).filter(Boolean);
+  main.innerHTML = '<div style="font-size:15px;font-weight:700;color:var(--magenta);margin-bottom:8px">'+P.name+' · Nivel '+P.lvl+'</div>'+
+    '<div class="char-stats"><div class="char-stat"><div class="label">HP</div><div class="value">'+Math.floor(P.hp)+'/'+P.maxHp+'</div></div>'+
+    '<div class="char-stat"><div class="label">DAÑO</div><div class="value">'+getWeaponDmg()+'</div></div>'+
+    '<div class="char-stat"><div class="label">DEFENSA</div><div class="value">'+getArmorDef()+'</div></div>'+
+    '<div class="char-stat"><div class="label">EDDIES</div><div class="value" style="color:var(--gold)">'+P.eddies+'</div></div></div>'+
+    '<div style="margin-top:12px;font-size:12px;color:var(--accent)">Equipamiento</div><div class="item-list" style="margin-top:6px">'+
+    '<div class="item-row"><div class="item-info"><div class="item-name">Arma: '+(w?w.name:'Ninguna')+'</div><div class="item-stats">'+(w?'DMG '+w.dmg+' · '+(w.subtype||''):'')+'</div></div></div>'+
+    '<div class="item-row"><div class="item-info"><div class="item-name">Atuendo: '+(a?a.name:'Ninguno')+'</div><div class="item-stats">'+(a?'DEF '+a.def:'')+'</div></div></div>'+
+    '<div class="item-row"><div class="item-info"><div class="item-name">Chrome ('+cybers.length+'/4)</div>'+
+    '<div class="item-meta">'+(cybers.length?cybers.map(function(c){return c.name;}).join(' · '):'Ninguno instalado')+'</div>'+
+    '<div class="item-stats">'+cybers.map(function(c){return c.ability;}).filter(Boolean).join(' | ')+'</div></div></div></div>'+
+    '<div style="margin-top:14px;font-size:11px;color:#7080a0;line-height:1.5">En Night City el chrome es poder. Los gigs de los fixers te harán leyenda... o te borrarán del mapa.</div>';
+}
+function renderApt(main) {
+  var subs = [{id:'rest',label:'Descansar'},{id:'gigs',label:'Gigs'},{id:'storage',label:'Almacén'}];
+  var html = '<div class="subtabs">'+subs.map(function(s){
+    return '<button class="'+(aptSub===s.id?'active':'')+'" onclick="aptSub=\''+s.id+'\';render()">'+s.label+'</button>';
+  }).join('')+'</div>';
+  if (aptSub==='rest') {
+    html += '<div class="loc-flavor">Tu pequeño apartamento en Watson. No es mucho, pero es tuyo. Las persianas apenas tapan los neones de fuera.</div>'+
+      '<div class="action-row"><button class="green" onclick="restAtApartment()">Descansar (HP máx.)</button></div>'+
+      '<div style="font-size:11px;color:#7080a0;margin-top:10px">Descansar avanza el tiempo varias horas y restaura toda la vida. Gratis en casa.</div>';
+  } else if (aptSub==='gigs') {
+    html += '<div style="font-size:12px;color:var(--magenta);margin-bottom:8px">Gigs activos</div>';
+    html += P.quests.map(function(q){
+      return '<div class="quest-card" style="'+(q.done?'opacity:0.5':'')+'"><div class="quest-title">'+(q.done?'✓ ':'')+q.title+'</div>'+
+        '<div class="quest-desc">'+q.desc+'</div><div class="quest-progress">'+(q.done?'COMPLETADO':'Progreso: '+(q.progress||0)+' / '+q.target)+'</div>'+
+        '<div class="quest-reward">Recompensa: '+(q.reward.eddies||0)+' €$ · '+(q.reward.xp||0)+' XP'+(q.reward.item?' · '+itemById(q.reward.item).name:'')+'</div></div>';
+    }).join('');
+    html += '<div class="action-row" style="margin-top:10px"><button class="magenta" onclick="acceptNewQuest()">Pedir nuevo gig al fixer</button></div>';
+  } else {
+    html += '<div style="font-size:12px;color:var(--accent);margin-bottom:6px">Almacenamiento del apartamento</div>';
+    if (!P.storage.length) html += '<div style="color:#7080a0;padding:8px">Vacío. Guarda objetos desde el inventario (botón 📦).</div>';
+    else {
+      html += '<div class="item-list">';
+      P.storage.forEach(function(slot){
+        var def = itemById(slot.id); if (!def) return;
+        html += '<div class="item-row"><div class="item-info"><div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(slot.qty>1?' ×'+slot.qty:'')+'</div>'+
+          '<div class="item-meta">'+def.desc+'</div></div><div class="item-actions">'+
+          '<button onclick="moveFromStorage('+slot.id+')">Sacar</button><button class="gold" onclick="sellItem('+slot.id+', true)">Vender</button></div></div>';
+      });
+      html += '</div>';
+    }
+  }
+  main.innerHTML = html;
+}
+function renderShop(main) {
+  var sections = [{title:'Armas',ids:SHOP_WEAPONS},{title:'Atuendos',ids:SHOP_ARMOR},{title:'Curativos',ids:SHOP_CONSUMABLES}];
+  var html = '<div style="font-size:13px;color:var(--gold);margin-bottom:4px">✦ Mercado negro</div>'+
+    '<div style="font-size:11px;color:#8090a8;margin-bottom:10px">"¿Hierro, ropa o algo que te mantenga vivo? Aquí no preguntamos de dónde sales."</div>';
+  sections.forEach(function(sec){
+    html += '<div style="font-size:12px;color:var(--accent);margin:10px 0 4px">'+sec.title+'</div><div class="item-list">';
+    sec.ids.forEach(function(id){
+      var def = itemById(id);
+      var stats = def.type==='weapon'?'DMG '+def.dmg+' · '+def.subtype:def.type==='armor'?'DEF '+def.def:def.type==='consumable'?'+'+def.heal+' HP':'';
+      html += '<div class="item-row"><div class="item-info"><div class="item-name '+rarityClass(def.rarity)+'">'+def.name+'</div>'+
+        '<div class="item-meta">'+def.desc+'</div><div class="item-stats">'+stats+' · '+def.value+' €$</div></div>'+
+        '<div class="item-actions"><button class="gold" onclick="buyItem('+id+')">Comprar</button></div></div>';
+    });
+    html += '</div>';
+  });
+  main.innerHTML = html;
+}
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  var btn = e.target.closest('button[data-tab]');
+  if (!btn || P.combat) return; sfxTab(); currentTab = btn.dataset.tab;
+  document.querySelectorAll('#tabs button').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===currentTab); });
+  render();
+});
+document.getElementById('btn-settings').addEventListener('click', function(){
+  sfxClick(); document.getElementById('vol-sfx').value = Math.round(sfxVol*100);
+  document.getElementById('modal-settings').classList.remove('hidden');
+});
+document.getElementById('btn-close-settings').addEventListener('click', function(){ sfxClick(); document.getElementById('modal-settings').classList.add('hidden'); });
+document.getElementById('vol-sfx').addEventListener('input', function(e){
+  sfxVol = e.target.value/100; try{ localStorage.setItem('nightcity_vol', sfxVol); }catch(err){}
+});
+document.getElementById('btn-save').addEventListener('click', function(){
+  if (save()) { sfxBuy(); logMsg('Partida guardada.', 'sys'); } else { sfxError(); logMsg('Error al guardar.', 'sys'); }
+});
+document.getElementById('btn-load').addEventListener('click', function(){
+  if (load()) { sfxClick(); logMsg('Partida cargada.', 'sys'); document.getElementById('modal-settings').classList.add('hidden'); document.getElementById('modal-name').classList.add('hidden'); render(); }
+  else { sfxError(); logMsg('No hay partida guardada.', 'sys'); }
+});
+document.getElementById('btn-reset').addEventListener('click', function(){
+  if (confirm('¿Reiniciar partida? Se borrará el progreso actual.')) { localStorage.removeItem('nightcity_v005'); location.reload(); }
+});
+document.getElementById('btn-start').addEventListener('click', function(){
+  var name = (document.getElementById('input-name').value.trim() || 'Runner').slice(0,16);
+  P.name = name; P.named = true; giveStarterQuests(); sfxLevel();
+  document.getElementById('modal-name').classList.add('hidden');
+  logMsg('Bienvenido a Night City, '+P.name+'. Las calles no perdonan.', 'sys');
+  logMsg('Explora, acepta gigs, instala chrome y sobrevive.', 'sys');
+  save(); render();
+});
+document.getElementById('input-name').addEventListener('keydown', function(e){ if (e.key==='Enter') document.getElementById('btn-start').click(); });
+
+(function init(){
+  try { var v = localStorage.getItem('nightcity_vol'); if (v!==null) sfxVol = parseFloat(v); } catch(e){}
+  var hasSave = load();
+  if (hasSave && P.named && P.name) {
+    document.getElementById('modal-name').classList.add('hidden');
+    if (!P.log.length) logMsg('De vuelta en las calles, '+P.name+'.', 'sys');
+    render();
+  } else {
+    document.getElementById('modal-name').classList.remove('hidden');
+    P.named = false;
+  }
+  updateStats();
+  setInterval(save, 20000);
+})();
+</script>
+</body>
+</html>
