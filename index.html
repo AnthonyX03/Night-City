@@ -18,14 +18,22 @@
   --bg: #050508; --panel: #0b0d14; --line: #00e8ff; --txt: #e8eefc;
   --accent: #00e8ff; --magenta: #ff2bd6; --danger: #ff3355; --gold: #ffc933;
   --bar-bg: #101018; --purple: #b14dff; --green: #3dde7a; --muted: #6a7a94;
-  --card: #0a101a; --border: #1a2838;
+  --card: #0a101a; --border: #1a2838; --glow: rgba(0,232,255,0.35);
+}
+/* Afterlife theme */
+html.theme-afterlife {
+  --bg: #0a0610; --panel: #120a18; --line: #ff2bd6; --txt: #f0e8ff;
+  --accent: #ff2bd6; --magenta: #c44dff; --danger: #ff4466; --gold: #ffc933;
+  --bar-bg: #180e22; --purple: #d070ff; --green: #5dffb0; --muted: #8a7098;
+  --card: #140c1c; --border: #2a1838; --glow: rgba(255,43,214,0.4);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
   width: 100%; height: 100%; margin: 0;
   background: var(--bg); color: var(--txt);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Consolas', 'Courier New', 'Segoe UI', monospace;
   overflow: hidden; -webkit-user-select: none; user-select: none;
+  letter-spacing: 0.2px;
 }
 button {
   font: inherit; color: var(--accent); background: #0a1520;
@@ -47,48 +55,115 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
   padding-bottom: max(8px, env(safe-area-inset-bottom)); overflow: hidden; position: relative;
 }
 
-/* ===== HUD ===== */
+/* ===== HUD (Pip-Boy / agent) ===== */
 .hud {
   flex-shrink: 0; background: linear-gradient(180deg, #0c1018 0%, #080a10 100%);
-  border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px 8px;
-  margin-bottom: 6px; box-shadow: 0 0 20px rgba(0,232,255,0.06);
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px 8px;
+  margin-bottom: 6px; position: relative; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 18px var(--glow);
 }
-.hud-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.hud::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+  opacity: 0.55; border-radius: 8px;
+}
+.hud-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; position: relative; z-index: 1; }
 .hud-title {
-  margin: 0; font-size: 16px; letter-spacing: 2px; font-weight: 800;
-  background: linear-gradient(90deg, var(--accent), var(--magenta));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin: 0; font-size: 15px; letter-spacing: 3px; font-weight: 800;
+  color: var(--accent); text-shadow: 0 0 12px var(--glow);
 }
+.hud-loc {
+  font-size: 10px; color: var(--muted); margin-bottom: 6px; position: relative; z-index: 1;
+  letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hud-loc b { color: var(--accent); font-weight: 600; }
+.hud-loc .faction { color: var(--magenta); }
 .hud-right { display: flex; align-items: center; gap: 8px; }
-.hud-time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hud-time { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; max-width: 120px; text-align: right; line-height: 1.2; }
 .btn-icon {
   width: 34px; height: 34px; min-width: 34px; padding: 0; border-radius: 8px;
   display: flex; align-items: center; justify-content: center; font-size: 15px;
 }
-.hud-bars { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.hud-bars { display: flex; flex-direction: column; gap: 5px; margin-bottom: 6px; position: relative; z-index: 1; }
 .bar-row { display: flex; align-items: center; gap: 8px; }
-.bar-label { font-size: 10px; color: var(--muted); width: 28px; flex-shrink: 0; font-weight: 600; }
+.bar-label { font-size: 11px; color: var(--muted); width: 22px; flex-shrink: 0; font-weight: 700; }
 .bar-track {
-  flex: 1; height: 10px; background: var(--bar-bg); border-radius: 5px;
-  overflow: hidden; border: 1px solid #1a2230;
+  flex: 1; height: 10px; background: var(--bar-bg); border-radius: 2px;
+  overflow: hidden; border: 1px solid var(--border);
 }
-.bar-fill { height: 100%; border-radius: 5px; transition: width .3s; }
-.bar-fill.hp { background: linear-gradient(90deg, #00a8c8, var(--accent)); box-shadow: 0 0 8px rgba(0,232,255,0.35); }
+.bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+.bar-fill.hp { background: linear-gradient(90deg, #00a8c8, var(--accent)); box-shadow: 0 0 8px var(--glow); }
 .bar-fill.xp { background: linear-gradient(90deg, #a020a0, var(--magenta)); }
 .bar-text { font-size: 10px; color: var(--txt); width: 64px; text-align: right; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .hud-stats {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+  position: relative; z-index: 1;
 }
 .hud-stat {
-  background: var(--card); border: 1px solid var(--border); border-radius: 6px;
-  padding: 6px 4px; text-align: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+  padding: 5px 2px; text-align: center;
 }
-.hud-stat .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.hud-stat .val { font-size: 14px; font-weight: 700; margin-top: 2px; }
+.hud-stat .lbl { font-size: 10px; color: var(--muted); letter-spacing: 0; }
+.hud-stat .val { font-size: 13px; font-weight: 700; margin-top: 1px; }
 .hud-stat .val.gold { color: var(--gold); }
 .hud-stat .val.accent { color: var(--accent); }
 .hud-stat .val.magenta { color: var(--magenta); }
 .hud-stat .val.green { color: var(--green); }
+.hud-ammo {
+  margin-top: 6px; font-size: 11px; color: var(--accent); position: relative; z-index: 1;
+  display: flex; justify-content: space-between; gap: 8px; align-items: center;
+  border-top: 1px solid var(--border); padding-top: 5px;
+}
+.hud-ammo .ammo-empty { color: var(--danger); }
+.hud-ammo .ammo-melee { color: var(--green); }
+
+/* Apartment PC */
+.pc-shell {
+  background: #06080e; border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px; min-height: 200px;
+}
+.pc-bar {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border); padding-bottom: 8px;
+}
+.pc-bar button { font-size: 10px; padding: 6px 8px; }
+.pc-bar button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.pc-news-item, .pc-msg-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px; margin-bottom: 8px;
+}
+.pc-news-item .n-title { font-weight: 700; color: var(--accent); font-size: 13px; }
+.pc-news-item .n-date, .pc-msg-item .m-from { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.pc-news-item .n-body, .pc-msg-item .m-text { font-size: 12px; margin-top: 6px; color: var(--txt); }
+.pc-msg-item.unread { border-color: var(--magenta); }
+.order-status {
+  font-size: 11px; color: var(--gold); margin: 8px 0; padding: 8px;
+  background: #12100a; border-radius: 6px; border: 1px solid #3a3020;
+}
+
+/* Combat feedback */
+.screen-flash {
+  position: fixed; inset: 0; pointer-events: none; z-index: 250;
+  opacity: 0; transition: opacity 0.05s;
+}
+.screen-flash.hurt { background: rgba(255,40,60,0.35); }
+.screen-flash.crit { background: rgba(255,200,40,0.25); }
+.screen-flash.loot { background: rgba(255,200,50,0.18); }
+.float-dmg {
+  position: fixed; z-index: 260; pointer-events: none;
+  font-weight: 800; font-size: 22px; font-family: inherit;
+  text-shadow: 0 0 8px #000, 0 2px 0 #000;
+  animation: floatDmg 1s ease-out forwards;
+}
+.float-dmg.player { color: #ff4466; }
+.float-dmg.enemy { color: #ffe566; }
+.float-dmg.crit { color: #ffaa00; font-size: 26px; }
+@keyframes floatDmg {
+  0% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -48px) scale(0.9); }
+}
+.main-content { transition: opacity 0.15s ease; }
+.main-content.fading { opacity: 0; }
 
 /* Loot modal */
 .loot-modal-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; max-height: 40vh; overflow-y: auto; }
@@ -135,24 +210,33 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
   animation: eddiePop 1.1s ease-out forwards;
 }
 .eddie-transfer .eddie-label {
-  font-size: 11px; letter-spacing: 3px; color: var(--accent);
+  font-size: 11px; letter-spacing: 3px; color: #ffcc33;
   text-transform: uppercase; margin-bottom: 4px;
-  text-shadow: 0 0 10px rgba(0,232,255,0.6);
+  text-shadow: 0 0 12px rgba(255,200,0,0.9), 0 0 24px rgba(255,180,0,0.5);
 }
 .eddie-transfer .eddie-amount {
-  font-size: 28px; color: var(--gold);
-  text-shadow: 0 0 16px rgba(255,201,51,0.7), 0 0 4px #000;
+  font-size: 30px; color: #ffe566;
+  text-shadow: 0 0 20px rgba(255,200,0,0.95), 0 0 8px #ffaa00, 0 0 2px #000;
 }
-.eddie-transfer.spend .eddie-amount { color: var(--danger); text-shadow: 0 0 16px rgba(255,51,85,0.6); }
+.eddie-transfer.spend .eddie-label { color: #ffb020; }
+.eddie-transfer.spend .eddie-amount {
+  color: #ff9900;
+  text-shadow: 0 0 18px rgba(255,140,0,0.9), 0 0 6px #000;
+}
 .eddie-transfer .eddie-bar {
-  width: 140px; height: 3px; margin: 8px auto 0;
-  background: #1a2030; border-radius: 2px; overflow: hidden;
+  width: 150px; height: 4px; margin: 8px auto 0;
+  background: #2a2010; border-radius: 2px; overflow: hidden;
+  box-shadow: 0 0 8px rgba(255,180,0,0.3);
 }
 .eddie-transfer .eddie-bar-fill {
-  height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--gold));
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, #ffaa00, #ffe566, #ffcc33);
   animation: eddieBar 0.9s ease-out forwards;
+  box-shadow: 0 0 10px rgba(255,200,0,0.8);
 }
-.eddie-transfer.spend .eddie-bar-fill { background: linear-gradient(90deg, var(--danger), var(--magenta)); }
+.eddie-transfer.spend .eddie-bar-fill {
+  background: linear-gradient(90deg, #cc7700, #ffaa00);
+}
 @keyframes eddiePop {
   0% { opacity: 0; transform: translate(-50%, -40%) scale(0.8); }
   15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
@@ -201,16 +285,17 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
 /* Tabs */
 .bottom-bar { flex-shrink: 0; }
 .tabs {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px;
 }
 .tabs button {
-  padding: 10px 1px; font-size: 9px; font-weight: 600; border-radius: 8px;
+  padding: 10px 0; font-size: 8px; font-weight: 600; border-radius: 6px;
   border-color: var(--border); color: var(--muted); background: #0a0e16;
 }
 .tabs button.active {
   background: var(--accent); color: #000; border-color: var(--accent);
-  box-shadow: 0 0 14px rgba(0,232,255,0.35); font-weight: 800;
+  box-shadow: 0 0 14px var(--glow); font-weight: 800;
 }
+.tabs button:not(.active) { box-shadow: none; }
 
 /* Map */
 .loc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -269,9 +354,19 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
   border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; font-weight: 700;
   vertical-align: middle;
 }
-.rarity-common { color: #a0b0c0; } .rarity-uncommon { color: #3dde7a; }
-.rarity-rare { color: #5ba3ff; } .rarity-epic { color: var(--purple); }
-.rarity-legendary { color: var(--gold); text-shadow: 0 0 8px rgba(255,201,51,0.35); }
+.rarity-common { color: #5a6878; }
+.rarity-uncommon { color: #3dde7a; text-shadow: 0 0 6px rgba(61,222,122,0.25); }
+.rarity-rare { color: #5ba3ff; text-shadow: 0 0 8px rgba(91,163,255,0.35); }
+.rarity-epic { color: #d070ff; text-shadow: 0 0 10px rgba(176,80,255,0.45); }
+.rarity-legendary {
+  color: #ffd24a;
+  text-shadow: 0 0 10px rgba(255,200,40,0.7), 0 0 20px rgba(255,180,0,0.4);
+  animation: legPulse 1.8s ease-in-out infinite;
+}
+@keyframes legPulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(255,200,40,0.5), 0 0 16px rgba(255,180,0,0.25); }
+  50% { text-shadow: 0 0 14px rgba(255,220,80,0.95), 0 0 28px rgba(255,180,0,0.55); }
+}
 
 /* Chrome silhouette */
 .chrome-layout { display: flex; flex-direction: column; gap: 14px; }
@@ -294,12 +389,29 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
 .chrome-slot .slot-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px; }
 .chrome-slot .slot-item { font-size: 10px; font-weight: 700; line-height: 1.2; color: inherit; }
 .chrome-slot.empty:active, .chrome-slot:active { border-color: var(--magenta); }
-.slot-optics { top: 8px; left: 50%; transform: translateX(-50%); width: 90px; }
-.slot-nervous { top: 70px; left: 50%; transform: translateX(-50%); width: 90px; }
-.slot-arms { top: 130px; left: 0; }
-.slot-skin { top: 130px; right: 0; }
-.slot-circulatory { top: 195px; left: 50%; transform: translateX(-50%); width: 90px; }
-.slot-legs { top: 255px; left: 50%; transform: translateX(-50%); width: 90px; }
+.slot-eyes { top: 4px; left: 50%; transform: translateX(-50%); width: 88px; }
+.slot-hand-l { top: 110px; left: 0; width: 70px; }
+.slot-hand-r { top: 110px; right: 0; width: 70px; }
+.slot-chest { top: 70px; left: 50%; transform: translateX(-50%); width: 88px; }
+.slot-leg-l { top: 200px; left: 8px; width: 70px; }
+.slot-leg-r { top: 200px; right: 8px; width: 70px; }
+.slot-chip { top: 270px; left: 50%; transform: translateX(-50%); width: 100px; border-color: var(--magenta); }
+.equip-body {
+  position: relative; width: 200px; height: 280px; margin: 0 auto 12px;
+}
+.equip-slot {
+  position: absolute; width: 80px; min-height: 48px;
+  background: rgba(10,20,32,0.92); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 6px; cursor: pointer; text-align: center;
+  font-size: 10px; color: var(--muted);
+}
+.equip-slot.filled { border-color: var(--accent); color: var(--accent); }
+.equip-slot .es-title { font-size: 8px; text-transform: uppercase; color: var(--muted); }
+.equip-slot .es-name { font-size: 11px; font-weight: 700; margin-top: 2px; }
+.es-weapon { top: 100px; left: 0; }
+.es-armor { top: 60px; left: 50%; transform: translateX(-50%); width: 90px; }
+.es-hack { top: 200px; left: 50%; transform: translateX(-50%); width: 100px; border-color: var(--magenta); }
+
 .chrome-shop-list { display: flex; flex-direction: column; gap: 8px; }
 .chrome-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
@@ -389,7 +501,10 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
 @media (max-width: 400px) {
   .district-grid { grid-template-columns: 1fr; }
   .tabs button { font-size: 9px; padding: 9px 1px; }
-  .hud-stats { grid-template-columns: repeat(4, 1fr); }
+  .hud-stats { grid-template-columns: repeat(5, 1fr); gap: 3px; }
+  .hud-stat .val { font-size: 12px; }
+  .tabs { grid-template-columns: repeat(8, 1fr); }
+  .tabs button { font-size: 7px; padding: 9px 0; }
   .chrome-body { width: 180px; height: 300px; }
 }
 </style>
@@ -404,26 +519,29 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
         <button class="btn-icon" id="btn-settings" title="Ajustes">⚙</button>
       </div>
     </div>
+    <div class="hud-loc" id="hud-loc">Watson</div>
     <div class="hud-bars">
       <div class="bar-row">
-        <span class="bar-label">HP</span>
+        <span class="bar-label">♥</span>
         <div class="bar-track"><div class="bar-fill hp" id="hp-bar" style="width:100%"></div></div>
         <span class="bar-text"><b id="st-hp">100</b>/<b id="st-maxhp">100</b></span>
       </div>
       <div class="bar-row">
-        <span class="bar-label">XP</span>
+        <span class="bar-label">⚡</span>
         <div class="bar-track"><div class="bar-fill xp" id="xp-bar" style="width:0%"></div></div>
         <span class="bar-text"><b id="st-xp">0</b>/<b id="st-maxxp">100</b></span>
       </div>
     </div>
     <div class="hud-stats">
-      <div class="hud-stat"><div class="lbl">Nivel</div><div class="val magenta" id="st-lvl">1</div></div>
-      <div class="hud-stat"><div class="lbl">Eddies</div><div class="val gold" id="st-eddies">500</div></div>
-      <div class="hud-stat"><div class="lbl">Daño</div><div class="val accent" id="st-dmg">8</div></div>
-      <div class="hud-stat"><div class="lbl">Armadura</div><div class="val accent" id="st-armor">0</div></div>
-      <div class="hud-stat"><div class="lbl">Skill pts</div><div class="val green" id="st-sp">0</div></div>
+      <div class="hud-stat"><div class="lbl">◆ Nv</div><div class="val magenta" id="st-lvl">1</div></div>
+      <div class="hud-stat"><div class="lbl">€$</div><div class="val gold" id="st-eddies">500</div></div>
+      <div class="hud-stat"><div class="lbl">⚔ DMG</div><div class="val accent" id="st-dmg">8</div></div>
+      <div class="hud-stat"><div class="lbl">🛡 ARM</div><div class="val accent" id="st-armor">0</div></div>
+      <div class="hud-stat"><div class="lbl">◆ SP</div><div class="val green" id="st-sp">0</div></div>
     </div>
+    <div class="hud-ammo" id="hud-ammo">Munición: —</div>
   </div>
+  <div id="screen-flash" class="screen-flash"></div>
 
   <div class="panel-log">
     <div class="log-title">// NETLOG</div>
@@ -442,6 +560,7 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
       <button data-tab="fixers">Fixers</button>
       <button data-tab="craft">Fab</button>
       <button data-tab="skills">Skills</button>
+      <button data-tab="shop">Mercado</button>
       <button data-tab="apt">Apto</button>
     </div>
   </div>
@@ -460,13 +579,16 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
   <div class="modal-content">
     <h3>⚙ Ajustes</h3>
     <div class="settings-row"><label>Volumen efectos</label><input type="range" id="vol-sfx" min="0" max="100" value="70"></div>
+    <div class="settings-row"><label>Tema Afterlife</label>
+      <button id="btn-theme" style="flex:0 0 auto;padding:6px 12px">Activar</button>
+    </div>
     <div class="action-row" style="flex-direction:column">
       <button class="green" id="btn-save">💾 Guardar partida</button>
       <button id="btn-load">📂 Cargar partida</button>
       <button class="danger" id="btn-reset">🗑 Reiniciar partida</button>
       <button class="ghost" id="btn-close-settings">Cerrar</button>
     </div>
-    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.0.7</span></div>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.1.2</span></div>
   </div>
 </div>
 
@@ -488,7 +610,7 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
 </div>
 
 <script>
-const VERSION = '0.0.8';
+const VERSION = '0.1.2';
 let audioCtx = null, sfxVol = 0.7;
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -524,34 +646,35 @@ function sfxWeapon(subtype) {
   else { playTone(350,0.05,'square',0.8); setTimeout(function(){playTone(200,0.06,'triangle',0.4);},30); }
 }
 
+/* Nombres como en Cyberpunk 2077 (ES): topónimos y facciones en inglés */
 const DISTRICTS = [
   { id:'watson', name:'Watson', desc:'Kabuki, Little China y Northside.', danger:2, flavor:'Neones parpadeantes, humo de street food y ozono de cables.',
     subs: [
       { id:'kabuki', name:'Kabuki', faction:'Tyger Claws', danger:2, flavor:'Mercados nocturnos, neones y garras al acecho.' },
       { id:'littlechina', name:'Little China', faction:'Scavs', danger:2, flavor:'Callejones estrechos y clínicas ilegales.' },
-      { id:'northside', name:'Northside Industrial', faction:'Maelstrom', danger:3, flavor:'Fábricas oxidadas y chrome oxidado.' },
+      { id:'northside', name:'Northside Industrial District', faction:'Maelstrom', danger:3, flavor:'Fábricas oxidadas y chrome oxidado.' },
     ]},
-  { id:'westbrook', name:'Westbrook', desc:'Japantown y Charter Hill.', danger:3, flavor:'Lujo y peligro en igual medida.',
+  { id:'westbrook', name:'Westbrook', desc:'Japantown y Charter Hill.', danger:3, flavor:'Lujo y peligro a partes iguales.',
     subs: [
-      { id:'japantown', name:'Japantown', faction:'Tyger Claws', danger:3, flavor:'Torii neón y katana lista.' },
+      { id:'japantown', name:'Japantown', faction:'Tyger Claws', danger:3, flavor:'Torii de neón y katana lista.' },
       { id:'charterhill', name:'Charter Hill', faction:'Corpo', danger:2, flavor:'Residencias de ejecutivos y seguridad privada.' },
-      { id:'northoak', name:'North Oak', faction:'Corpo', danger:1, flavor:'Mansiones detrás de muros. Casi no hay calle.' },
+      { id:'northoak', name:'North Oak', faction:'Corpo', danger:1, flavor:'Mansiones tras muros. Casi no hay calle.' },
     ]},
   { id:'citycenter', name:'City Center', desc:'Corpo Plaza y Downtown.', danger:4, flavor:'El dinero habla más fuerte que las balas.',
     subs: [
       { id:'corpoplaza', name:'Corpo Plaza', faction:'Corpo', danger:4, flavor:'Torres Arasaka y drones de patrulla.' },
       { id:'downtown', name:'Downtown', faction:'Corpo', danger:3, flavor:'Negocios, clubs y tiroteos discretos.' },
-      { id:'wellsprings_cc', name:'Financial District', faction:'Corpo', danger:4, flavor:'Donde se mueve el capital de Night City.' },
+      { id:'wellsprings_cc', name:'Corporate Plaza Annex', faction:'Corpo', danger:4, flavor:'Donde se mueve el capital de Night City.' },
     ]},
   { id:'heywood', name:'Heywood', desc:'The Glen, Wellsprings, Vista del Rey.', danger:3, flavor:'Familia, honor y callejones.',
     subs: [
-      { id:'theglen', name:'The Glen', faction:'Valentinos', danger:3, flavor:'Murals, lowriders y lealtad de sangre.' },
+      { id:'theglen', name:'The Glen', faction:'Valentinos', danger:3, flavor:'Murales, lowriders y lealtad de sangre.' },
       { id:'vistadelrey', name:'Vista del Rey', faction:'Valentinos', danger:3, flavor:'Territorio clásico Valentino.' },
       { id:'wellsprings', name:'Wellsprings', faction:'6th Street', danger:2, flavor:'Banderas y rifles en las azoteas.' },
     ]},
   { id:'pacifica', name:'Pacifica', desc:'Coastview y West Wind Estate.', danger:5, flavor:'Nadie viene sin un motivo muy bueno.',
     subs: [
-      { id:'coastview', name:'Coastview', faction:'Voodoo Boys', danger:5, flavor:'Hoteles fantasmas y netrunners haitianos.' },
+      { id:'coastview', name:'Coastview', faction:'Voodoo Boys', danger:5, flavor:'Hoteles fantasma y netrunners haitianos.' },
       { id:'westwind', name:'West Wind Estate', faction:'Animals', danger:4, flavor:'Gimnasios abandonados y fuerza bruta.' },
       { id:'grandimperial', name:'Grand Imperial Mall', faction:'Voodoo Boys', danger:5, flavor:'El corazón podrido de Pacifica.' },
     ]},
@@ -559,7 +682,7 @@ const DISTRICTS = [
     subs: [
       { id:'arroyo', name:'Arroyo', faction:'6th Street', danger:3, flavor:'Plantas industriales y humo eterno.' },
       { id:'rancho', name:'Rancho Coronado', faction:'6th Street', danger:2, flavor:'Barrios obreros y orgullo local.' },
-      { id:'badlandsedge', name:'Límite Badlands', faction:'Wraiths', danger:4, flavor:'Donde termina la ciudad y empieza el desierto.' },
+      { id:'badlandsedge', name:'Badlands Edge', faction:'Wraiths', danger:4, flavor:'Donde termina la ciudad y empieza el desierto.' },
     ]},
 ];
 
@@ -591,7 +714,7 @@ const ENEMIES = [
   { name:'Tyger Claw', level:3, hp:38, dmg:9, loot:[3,12,52], eddies:[35,70], gang:'Tyger Claws' },
   { name:'Valentino', level:3, hp:40, dmg:8, loot:[2,13,50], eddies:[30,65], gang:'Valentinos' },
   { name:'6th Street', level:4, hp:45, dmg:10, loot:[4,14,51], eddies:[40,80], gang:'6th Street' },
-  { name:'Scav experimentado', level:5, hp:55, dmg:12, loot:[5,15,53], eddies:[50,100], gang:'Scavs' },
+  { name:'Scav veterano', level:5, hp:55, dmg:12, loot:[5,15,53], eddies:[50,100], gang:'Scavs' },
   { name:'Maelstrom cyberado', level:6, hp:65, dmg:14, loot:[6,16,54], eddies:[60,120], gang:'Maelstrom' },
   { name:'Tyger Claw élite', level:7, hp:75, dmg:16, loot:[7,17,55], eddies:[70,140], gang:'Tyger Claws' },
   { name:'Corpo Security', level:8, hp:85, dmg:15, loot:[8,18,56], eddies:[80,160], gang:'Corpo' },
@@ -601,6 +724,50 @@ const ENEMIES = [
   { name:'Wraith', level:11, hp:95, dmg:19, loot:[23,24,59], eddies:[110,220], gang:'Wraiths' },
   { name:'Cyberpsico inestable', level:12, hp:140, dmg:24, loot:[25,60,101], eddies:[150,300], gang:'Cyberpsico', legendary:true },
   { name:'Arasaka Elite', level:14, hp:160, dmg:22, loot:[26,27,102], eddies:[200,350], gang:'Corpo', legendary:true },
+];
+
+const MONTHS_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const NEWS_POOL = [
+  { title:'Arasaka niega filtración en Night City', body:'La corporación afirma que los datos robados en Downtown son «ruido de netrunners». Analistas hablan de otro Johnny.' },
+  { title:'Tiroteo en Kabuki deja tres heridos', body:'Testigos apuntan a Tyger Claws. NCPD llegó 40 minutos tarde. «Negocio como siempre», dice un vecino.' },
+  { title:'Militech anuncia drones de patrulla en City Center', body:'La seguridad corporativa se refuerza tras el último ataque en Corpo Plaza. Civiles, fuera del perímetro.' },
+  { title:'Pacifica sigue sin NCPD', body:'West Wind Estate y Coastview permanecen en zona gris. Voodoo Boys controlan el tráfico de datos.' },
+  { title:'Mercado negro de chrome al alza', body:'Ripperdocs de Watson reportan escasez de componentes raros. Los precios de sandevistan se disparan.' },
+  { title:'6th Street reivindica control en Arroyo', body:'La banda asegura «proteger a los vecinos» de Scavs. Residentes de Rancho Coronado divididos.' },
+  { title:'Afterlife: lista de espera para solistas', body:'Rogues no confirma ni desmiente. En las calles se habla de un nuevo contrato en las Badlands.' },
+  { title:'Cyberpsicosis: otro incidente en Northside', body:'Maelstrom niega implicación. MaxTac cerró tres manzanas. Supervivientes en estado crítico.' },
+  { title:'Biotechnica investigada por vertidos', body:'Activistas de Heywood denuncian contaminación cerca de Wellsprings. La corpo no responde.' },
+  { title:'Net del Blackwall «estable», dice NetWatch', body:'Expertos independientes no se fían. En Japantown circulan rumores de IAs sueltas.' },
+  { title:'Valentinos celebran en The Glen', body:'Procesión armada sin incidentes graves. NCPD observó desde lejos. Familia y fuego artificial.' },
+  { title:'Escasez de MaxDocs en el mercado legal', body:'Clínicas priorizan clientes corpo. Street kids dependen del mercado negro y de los fixers.' },
+];
+const MSG_POOL = [
+  { from:'Regina Jones', text:'Tengo un gig limpio si te interesa. Pásate cuando puedas. — R' },
+  { from:'Wakako Okada', text:'No me hagas perder el tiempo, choom. Hay trabajo en Japantown.' },
+  { from:'Padre', text:'La familia necesita manos. Si respetas The Glen, hablamos.' },
+  { from:'Dakota Smith', text:'Ruta por las Badlands. Paga bien. Contesta si sigues vivo.' },
+  { from:'Desconocido', text:'Tu número se filtró. Borra esto. No vuelvas a Little China esta semana.' },
+  { from:'NCPD Auto', text:'Aviso: toque de queda temporal en Northside. Ignore bajo su riesgo.' },
+  { from:'Delamain', text:'Su historial de viajes está al día. Gracias por confiar en Delamain.' },
+  { from:'Ripperdoc Watson', text:'Tengo un slot libre mañana. Chrome de segunda mano, precio justo.' },
+  { from:'Spam · Instant Sunshine', text:'¡Gana 10.000 €$ desde casa! Haz clic… (phishing detectado)' },
+  { from:'Rogue', text:'No es un mensaje. Es una prueba. Si lees esto, sigues en el juego.' },
+];
+const FOOD_MENU = [
+  { id:'f1', name:'Ramen de Kabuki', cost:25, wait:20, heal:25, desc:'Caliente, grasa y decente.' },
+  { id:'f2', name:'Synth-pizza Watson', cost:40, wait:35, heal:40, desc:'Queso que no es queso. Sacia.' },
+  { id:'f3', name:'Protein pack corpo', cost:60, wait:25, heal:55, desc:'Nutrición de oficina. Sin alma.' },
+  { id:'f4', name:'Menú Afterlife', cost:120, wait:50, heal:80, desc:'Lo más parecido a comida real en NC.' },
+];
+const JOYTOY_MENU = [
+  { id:'j1', name:'Compañía básica (1h)', cost:80, wait:30, heal:20, desc:'Alguien con quien no hablar de chrome.' },
+  { id:'j2', name:'VIP (2h)', cost:180, wait:45, heal:45, desc:'Suite virtual + presencia real.' },
+  { id:'j3', name:'Experiencia premium', cost:350, wait:60, heal:70, desc:'Olvidas el Blackwall un rato.' },
+];
+const PC_BIZ = [
+  { id:'b1', name:'Invertir en BTC (sim)', cost:100, min:40, max:160, desc:'Mercado volátil. Puede salir bien… o no.' },
+  { id:'b2', name:'Comprar data shard', cost:75, item:53, desc:'Un shard aleatorio de estimulación.' },
+  { id:'b3', name:'Anuncio de fixer', cost:50, msg:true, desc:'Pagas por aparecer en la red. Puede llegar trabajo.' },
 ];
 
 const ITEMS = [
@@ -664,23 +831,33 @@ const ITEMS = [
   { id:58, name:'Injector de combate', type:'consumable', heal:45, weight:0.25, value:90, rarity:'uncommon', desc:'Uso militar.', stackable:true },
   { id:59, name:'Medkit de campo', type:'consumable', heal:80, weight:0.8, value:180, rarity:'rare', desc:'Kit completo.', stackable:true },
   { id:60, name:'SuperMaxDoc', type:'consumable', heal:100, weight:0.3, value:250, rarity:'epic', desc:'Cura total.', stackable:true },
-  { id:100, name:'Óptica Kiroshi Mk.1', type:'cyberware', slot:'optics', weight:0.1, value:400, rarity:'rare', desc:'+2 DMG.', bonusDmg:2, ability:'Precisión +2' },
-  { id:101, name:'Óptica Kiroshi Mk.2', type:'cyberware', slot:'optics', weight:0.1, value:800, rarity:'epic', desc:'+4 DMG.', bonusDmg:4, ability:'Precisión +4' },
-  { id:102, name:'Óptica Kiroshi Legendary', type:'cyberware', slot:'optics', weight:0.1, value:1800, rarity:'legendary', desc:'+6 DMG.', bonusDmg:6, ability:'Precisión +6' },
-  { id:103, name:'Sistema nervioso Reflex', type:'cyberware', slot:'nervous', weight:0.2, value:600, rarity:'epic', desc:'+3 DMG.', bonusDmg:3, ability:'Reflejos +3' },
-  { id:104, name:'Kerenzikov', type:'cyberware', slot:'nervous', weight:0.2, value:1200, rarity:'legendary', desc:'+5 DMG.', bonusDmg:5, ability:'Kerenzikov +5' },
-  { id:105, name:'Subdermal Armor', type:'cyberware', slot:'skin', weight:0.3, value:450, rarity:'rare', desc:'+4 DEF.', bonusDef:4, ability:'Piel +4 DEF' },
-  { id:106, name:'Subdermal Armor Mk.2', type:'cyberware', slot:'skin', weight:0.3, value:900, rarity:'epic', desc:'+7 DEF.', bonusDef:7, ability:'Piel +7 DEF' },
-  { id:107, name:'Pain Editor', type:'cyberware', slot:'nervous', weight:0.15, value:700, rarity:'epic', desc:'+15 Max HP.', bonusHp:15, ability:'+15 Max HP' },
-  { id:108, name:'Blood Pump Chrome', type:'cyberware', slot:'circulatory', weight:0.25, value:850, rarity:'epic', desc:'+2 DEF, +10 HP.', bonusDef:2, bonusHp:10, ability:'Regen + HP' },
-  { id:109, name:'Mantis Blades', type:'cyberware', slot:'arms', weight:1.5, value:1500, rarity:'legendary', desc:'+8 DMG.', bonusDmg:8, ability:'Mantis +8 DMG' },
-  { id:110, name:'Gorilla Arms', type:'cyberware', slot:'arms', weight:2.0, value:1100, rarity:'epic', desc:'+5 DMG, +3 DEF.', bonusDmg:5, bonusDef:3, ability:'Gorilla Arms' },
-  { id:111, name:'Monowire', type:'cyberware', slot:'arms', weight:0.4, value:1300, rarity:'legendary', desc:'+7 DMG.', bonusDmg:7, ability:'Monowire +7' },
-  { id:112, name:'Syn-Lungs', type:'cyberware', slot:'circulatory', weight:0.2, value:500, rarity:'rare', desc:'+10 Max HP.', bonusHp:10, ability:'+10 Max HP' },
-  { id:113, name:'Bio-Monitor', type:'cyberware', slot:'skin', weight:0.1, value:350, rarity:'uncommon', desc:'+5 Max HP.', bonusHp:5, ability:'+5 Max HP' },
-  { id:114, name:'Fortified Ankles', type:'cyberware', slot:'legs', weight:0.5, value:400, rarity:'rare', desc:'+2 DEF.', bonusDef:2, ability:'Tobillos +2 DEF' },
-  { id:115, name:'Reinforced Tendons', type:'cyberware', slot:'legs', weight:0.4, value:750, rarity:'epic', desc:'+3 DEF.', bonusDef:3, ability:'Tendones +3 DEF' },
-  /* Crafting components — one per rank (CP2077 style) */
+  { id:100, name:'Óptica Kiroshi Mk.1', type:'cyberware', slot:'eyes', weight:0.1, value:400, rarity:'rare', desc:'+2 DMG.', bonusDmg:2, ability:'Precisión +2' },
+  { id:101, name:'Óptica Kiroshi Mk.2', type:'cyberware', slot:'eyes', weight:0.1, value:800, rarity:'epic', desc:'+4 DMG.', bonusDmg:4, ability:'Precisión +4' },
+  { id:102, name:'Óptica Kiroshi Legendary', type:'cyberware', slot:'eyes', weight:0.1, value:1800, rarity:'legendary', desc:'+6 DMG.', bonusDmg:6, ability:'Precisión +6' },
+  { id:103, name:'Sistema nervioso Reflex', type:'cyberware', slot:'chest', weight:0.2, value:600, rarity:'epic', desc:'+3 DMG.', bonusDmg:3, ability:'Reflejos +3' },
+  { id:104, name:'Kerenzikov', type:'cyberware', slot:'chest', weight:0.2, value:1200, rarity:'legendary', desc:'+5 DMG.', bonusDmg:5, ability:'Kerenzikov +5' },
+  { id:105, name:'Subdermal Armor', type:'cyberware', slot:'chest', weight:0.3, value:450, rarity:'rare', desc:'+4 DEF.', bonusDef:4, ability:'Piel +4 DEF' },
+  { id:106, name:'Subdermal Armor Mk.2', type:'cyberware', slot:'chest', weight:0.3, value:900, rarity:'epic', desc:'+7 DEF.', bonusDef:7, ability:'Piel +7 DEF' },
+  { id:107, name:'Pain Editor', type:'cyberware', slot:'chest', weight:0.15, value:700, rarity:'epic', desc:'+15 Max HP.', bonusHp:15, ability:'+15 Max HP' },
+  { id:108, name:'Blood Pump Chrome', type:'cyberware', slot:'chest', weight:0.25, value:850, rarity:'epic', desc:'+2 DEF, +10 HP.', bonusDef:2, bonusHp:10, ability:'Regen + HP' },
+  { id:109, name:'Mantis Blades', type:'cyberware', slot:'hand', weight:1.5, value:1500, rarity:'legendary', desc:'+8 DMG.', bonusDmg:8, ability:'Mantis +8 DMG' },
+  { id:110, name:'Gorilla Arms', type:'cyberware', slot:'hand', weight:2.0, value:1100, rarity:'epic', desc:'+5 DMG, +3 DEF.', bonusDmg:5, bonusDef:3, ability:'Gorilla Arms' },
+  { id:111, name:'Monowire', type:'cyberware', slot:'hand', weight:0.4, value:1300, rarity:'legendary', desc:'+7 DMG.', bonusDmg:7, ability:'Monowire +7' },
+  { id:112, name:'Syn-Lungs', type:'cyberware', slot:'chest', weight:0.2, value:500, rarity:'rare', desc:'+10 Max HP.', bonusHp:10, ability:'+10 Max HP' },
+  { id:113, name:'Bio-Monitor', type:'cyberware', slot:'chest', weight:0.1, value:350, rarity:'uncommon', desc:'+5 Max HP.', bonusHp:5, ability:'+5 Max HP' },
+  { id:114, name:'Fortified Ankles', type:'cyberware', slot:'leg', weight:0.5, value:400, rarity:'rare', desc:'+2 DEF.', bonusDef:2, ability:'Tobillos +2 DEF' },
+  { id:115, name:'Reinforced Tendons', type:'cyberware', slot:'leg', weight:0.4, value:750, rarity:'epic', desc:'+3 DEF.', bonusDef:3, ability:'Tendones +3 DEF' },
+  
+  /* Quickhacks — equip on chip for combat */
+  { id:300, name:'Cortocircuito', type:'quickhack', slot:'chip', weight:0, value:200, rarity:'uncommon', desc:'Hack ofensivo. Daño digital al enemigo.', hackDmg:14, ability:'Cortocircuito' },
+  { id:301, name:'Sobrecarga', type:'quickhack', slot:'chip', weight:0, value:350, rarity:'rare', desc:'Sobrecarga sistemas. Alto daño.', hackDmg:22, ability:'Sobrecarga' },
+  { id:302, name:'Desarme de arma', type:'quickhack', slot:'chip', weight:0, value:280, rarity:'rare', desc:'Atonta al enemigo un turno.', hackDmg:8, skipEnemy:true, ability:'Desarme' },
+  { id:303, name:'Contagio', type:'quickhack', slot:'chip', weight:0, value:500, rarity:'epic', desc:'Virus que desgarra chrome enemigo.', hackDmg:28, ability:'Contagio' },
+  { id:304, name:'Suicidio forzado', type:'quickhack', slot:'chip', weight:0, value:900, rarity:'legendary', desc:'Hack letal. Costoso y raro.', hackDmg:45, ability:'Suicidio forzado' },
+  { id:305, name:'Cyberdeck Arasaka', type:'cyberware', slot:'chip', weight:0.2, value:600, rarity:'rare', desc:'Sistema operativo. Permite hacks.', bonusDmg:1, ability:'Deck básico' },
+  { id:306, name:'Cyberdeck NetWatch', type:'cyberware', slot:'chip', weight:0.2, value:1200, rarity:'epic', desc:'Deck avanzado. +2 DMG hacks.', bonusDmg:2, ability:'Deck avanzado' },
+
+/* Crafting components — one per rank (CP2077 style) */
   { id:200, name:'Componente Común', type:'component', rarity:'common', weight:0.1, value:15, desc:'Pieza básica de desguace.', stackable:true },
   { id:201, name:'Componente Poco común', type:'component', rarity:'uncommon', weight:0.1, value:35, desc:'Pieza de calidad media.', stackable:true },
   { id:202, name:'Componente Raro', type:'component', rarity:'rare', weight:0.1, value:70, desc:'Pieza de rango raro.', stackable:true },
@@ -721,28 +898,31 @@ const SKILL_TREE = {
   body: {
     name: 'Cuerpo',
     nodes: [
-      { id:'b1', name:'Vitalidad I', desc:'+20 Max HP', cost:1, req:null, effect:{maxHp:20} },
-      { id:'b2', name:'Vitalidad II', desc:'+30 Max HP', cost:1, req:'b1', effect:{maxHp:30} },
-      { id:'b3', name:'Piel dura', desc:'+3 Defensa', cost:1, req:'b1', effect:{def:3} },
-      { id:'b4', name:'Tanque', desc:'+40 Max HP, +2 DEF', cost:2, req:'b2', effect:{maxHp:40, def:2} },
+      { id:'b1', name:'Vigor', desc:'+20 Max HP', cost:1, req:null, effect:{maxHp:20} },
+      { id:'b2', name:'Adrenalina', desc:'+30 Max HP', cost:1, req:'b1', effect:{maxHp:30} },
+      { id:'b3', name:'Piel de acero', desc:'+3 Defensa', cost:1, req:'b1', effect:{def:3} },
+      { id:'b4', name:'Tanque callejero', desc:'+40 Max HP y +2 DEF', cost:2, req:'b2', effect:{maxHp:40, def:2} },
+      { id:'b5', name:'Imparable', desc:'+50 Max HP', cost:2, req:'b4', effect:{maxHp:50} },
     ]
   },
   reflexes: {
     name: 'Reflejos',
     nodes: [
       { id:'r1', name:'Mira firme', desc:'+2 Daño', cost:1, req:null, effect:{dmg:2} },
-      { id:'r2', name:'Disparo rápido', desc:'+3 Daño', cost:1, req:'r1', effect:{dmg:3} },
-      { id:'r3', name:'Asesino', desc:'+5 Daño', cost:2, req:'r2', effect:{dmg:5} },
-      { id:'r4', name:'Evasión', desc:'+2 DEF', cost:1, req:'r1', effect:{def:2} },
+      { id:'r2', name:'Disparo instintivo', desc:'+3 Daño', cost:1, req:'r1', effect:{dmg:3} },
+      { id:'r3', name:'Bailarín de balas', desc:'+2 DEF', cost:1, req:'r1', effect:{def:2} },
+      { id:'r4', name:'Asesino de azotea', desc:'+5 Daño', cost:2, req:'r2', effect:{dmg:5} },
+      { id:'r5', name:'Blur', desc:'+4 Daño y +2 DEF', cost:2, req:'r4', effect:{dmg:4, def:2} },
     ]
   },
-  tech: {
-    name: 'Técnica',
+  technical: {
+    name: 'Habilidad Técnica',
     nodes: [
       { id:'t1', name:'Chatarrero', desc:'+1 componente al desguazar', cost:1, req:null, effect:{scrapBonus:1} },
-      { id:'t2', name:'Ingeniero', desc:'Fabricar cuesta 1 componente menos (mín. 1)', cost:1, req:'t1', effect:{craftDiscount:1} },
-      { id:'t3', name:'Ripper aficionado', desc:'+10 Max HP (chrome synergy)', cost:1, req:'t1', effect:{maxHp:10} },
-      { id:'t4', name:'Maestro técnico', desc:'+2 DMG, +1 scrap', cost:2, req:'t2', effect:{dmg:2, scrapBonus:1} },
+      { id:'t2', name:'Ingeniero de campo', desc:'Fabricar cuesta 1 componente menos', cost:1, req:'t1', effect:{craftDiscount:1} },
+      { id:'t3', name:'Ripper aficionado', desc:'+10 Max HP', cost:1, req:'t1', effect:{maxHp:10} },
+      { id:'t4', name:'Maestro técnico', desc:'+2 DMG y +1 scrap', cost:2, req:'t2', effect:{dmg:2, scrapBonus:1} },
+      { id:'t5', name:'Arsenal casero', desc:'+3 DMG', cost:2, req:'t4', effect:{dmg:3} },
     ]
   },
   cool: {
@@ -750,21 +930,34 @@ const SKILL_TREE = {
     nodes: [
       { id:'c1', name:'Negociador', desc:'+10% eddies en combate', cost:1, req:null, effect:{eddiesPct:0.1} },
       { id:'c2', name:'Callejero', desc:'+15% eddies en combate', cost:1, req:'c1', effect:{eddiesPct:0.15} },
-      { id:'c3', name:'Sigilo', desc:'+10% huir con éxito', cost:1, req:'c1', effect:{fleeBonus:0.1} },
-      { id:'c4', name:'Leyenda local', desc:'+20% eddies, +2 DMG', cost:2, req:'c2', effect:{eddiesPct:0.2, dmg:2} },
+      { id:'c3', name:'Fantasma', desc:'+10% huir con éxito', cost:1, req:'c1', effect:{fleeBonus:0.1} },
+      { id:'c4', name:'Leyenda local', desc:'+20% eddies y +2 DMG', cost:2, req:'c2', effect:{eddiesPct:0.2, dmg:2} },
+      { id:'c5', name:'Hielo en las venas', desc:'+15% huir y +3 DMG', cost:2, req:'c3', effect:{fleeBonus:0.15, dmg:3} },
+    ]
+  },
+  intelligence: {
+    name: 'Inteligencia',
+    nodes: [
+      { id:'i1', name:'Netrunner novato', desc:'+3 daño de hacks', cost:1, req:null, effect:{hackDmg:3} },
+      { id:'i2', name:'Overclock', desc:'+5 daño de hacks', cost:1, req:'i1', effect:{hackDmg:5} },
+      { id:'i3', name:'Analista', desc:'+1 DEF (lectura de patrones)', cost:1, req:'i1', effect:{def:1} },
+      { id:'i4', name:'Daemon personal', desc:'+8 daño de hacks', cost:2, req:'i2', effect:{hackDmg:8} },
+      { id:'i5', name:'Blackwall fringe', desc:'+12 daño de hacks', cost:2, req:'i4', effect:{hackDmg:12} },
     ]
   }
 };
 
 const CHROME_SLOTS = [
-  { id:'optics', label:'Óptica', cls:'slot-optics' },
-  { id:'nervous', label:'Nervioso', cls:'slot-nervous' },
-  { id:'arms', label:'Brazos', cls:'slot-arms' },
-  { id:'skin', label:'Piel', cls:'slot-skin' },
-  { id:'circulatory', label:'Circulatorio', cls:'slot-circulatory' },
-  { id:'legs', label:'Piernas', cls:'slot-legs' },
+  { id:'eyes', name:'Ojos', cls:'slot-eyes', accept:['eyes'] },
+  { id:'hand_l', name:'Mano izq.', cls:'slot-hand-l', accept:['hand'] },
+  { id:'hand_r', name:'Mano der.', cls:'slot-hand-r', accept:['hand'] },
+  { id:'chest', name:'Pecho', cls:'slot-chest', accept:['chest'] },
+  { id:'leg_l', name:'Pierna izq.', cls:'slot-leg-l', accept:['leg'] },
+  { id:'leg_r', name:'Pierna der.', cls:'slot-leg-r', accept:['leg'] },
+  { id:'chip', name:'Chip / Deck', cls:'slot-chip', accept:['chip'] },
 ];
-const CHROME_SHOP = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115];
+const SLOT_LABEL = { eyes:'Ojos', hand_l:'Mano izq.', hand_r:'Mano der.', chest:'Pecho', leg_l:'Pierna izq.', leg_r:'Pierna der.', chip:'Chip' };
+const CHROME_SHOP = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,305,306];
 
 const QUESTS_POOL = [
   { id:'q1', title:'Limpieza de Scavs', desc:'Elimina a 3 Scavs.', type:'kill', target:3, gang:'Scavs', reward:{ eddies:200, xp:60, item:50 } },
@@ -787,16 +980,19 @@ const FIXERS = [
 
 let P = {
   name:'', hp:100, maxHp:100, lvl:1, xp:0, maxXp:100, eddies:500, district:'watson',
-  inv:[{id:1,qty:1},{id:10,qty:1},{id:50,qty:3},{id:53,qty:1},{id:210,qty:40},{id:211,qty:25}],
+  inv:[{id:1,qty:1},{id:10,qty:1},{id:50,qty:3},{id:53,qty:1},{id:210,qty:40},{id:211,qty:25},{id:300,qty:1},{id:305,qty:1}],
   storage:[], equipped:{ weapon:1, armor:10, cyberware:{} },
   ownedChrome:[],
   activeQuests:[], completedQuests:[],
   skillPoints:0, unlockedSkills:[],
   pendingLoot:null,
   mapView:'city', viewDistrict:null, viewSub:null,
-  kills:{}, hours:20, minutes:47, combat:null, log:[], named:false,
+  kills:{}, hours:20, minutes:47, day:14, month:10, year:2077,
+  combat:null, log:[], named:false,
+  pcMessages:[], pcNews:[], foodOrder:null, joyOrder:null,
 };
-let currentTab = 'map', invSub = 'all', aptSub = 'rest', craftSub = 'disassemble', skillCat = 'body';
+let currentTab = 'map', invSub = 'bag', aptSub = 'rest', craftSub = 'scrap', skillCat = 'body';
+let shopSub = 'weapon', selectedFixer = 'regina', pcPage = 'home';
 
 function itemById(id) { return ITEMS.find(function(i){ return i.id === id; }); }
 
@@ -896,11 +1092,11 @@ function recalcMaxHp() {
 }
 
 function save() {
-  try { localStorage.setItem('nightcity_v008', JSON.stringify(P)); return true; } catch(e){ return false; }
+  try { localStorage.setItem('nightcity_v012', JSON.stringify(P)); return true; } catch(e){ return false; }
 }
 function load() {
   try {
-    var raw = localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
+    var raw = localStorage.getItem('nightcity_v012') || localStorage.getItem('nightcity_v010') || localStorage.getItem('nightcity_v009') || localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
     if (!raw) return false;
     var data = JSON.parse(raw);
     Object.assign(P, data);
@@ -914,6 +1110,13 @@ function load() {
     if (!P.mapView) P.mapView = 'city';
     if (P.viewDistrict === undefined) P.viewDistrict = null;
     if (P.viewSub === undefined) P.viewSub = null;
+    if (!P.day) P.day = 14;
+    if (!P.month) P.month = 10;
+    if (!P.year) P.year = 2077;
+    if (!P.pcMessages) P.pcMessages = [];
+    if (!P.pcNews) P.pcNews = [];
+    if (P.foodOrder === undefined) P.foodOrder = null;
+    if (P.joyOrder === undefined) P.joyOrder = null;
     if (Array.isArray(P.equipped.cyberware)) {
       var map = {};
       P.equipped.cyberware.forEach(function(cid){
@@ -923,6 +1126,15 @@ function load() {
       P.equipped.cyberware = map;
     }
     if (!P.equipped.cyberware || Array.isArray(P.equipped.cyberware)) P.equipped.cyberware = {};
+    /* migrate old slot keys */
+    var cw = P.equipped.cyberware;
+    if (cw.optics) { cw.eyes = cw.optics; delete cw.optics; }
+    if (cw.nervous) { cw.chest = cw.chest || cw.nervous; delete cw.nervous; }
+    if (cw.skin) { cw.chest = cw.chest || cw.skin; delete cw.skin; }
+    if (cw.circulatory) { cw.chest = cw.chest || cw.circulatory; delete cw.circulatory; }
+    if (cw.arms) { cw.hand_l = cw.hand_l || cw.arms; delete cw.arms; }
+    if (cw.legs) { cw.leg_l = cw.leg_l || cw.legs; delete cw.legs; }
+    if (!P.equipped.hack) P.equipped.hack = null;
     normalizeInv();
     recalcMaxHp();
     return true;
@@ -951,7 +1163,48 @@ function updateStats() {
   if (spEl) spEl.textContent = P.skillPoints || 0;
   document.getElementById('hp-bar').style.width = Math.min(100, (P.hp / Math.max(1,P.maxHp)) * 100) + '%';
   document.getElementById('xp-bar').style.width = Math.min(100, (P.xp / Math.max(1,P.maxXp)) * 100) + '%';
-  document.getElementById('st-time').textContent = String(P.hours).padStart(2,'0')+':'+String(P.minutes).padStart(2,'0');
+  var timeStr = String(P.hours).padStart(2,'0')+':'+String(P.minutes).padStart(2,'0');
+  document.getElementById('st-time').textContent = formatDate()+' · '+timeStr;
+  updateHudLoc();
+  updateHudAmmo();
+}
+function updateHudLoc() {
+  var el = document.getElementById('hud-loc'); if (!el) return;
+  var dist = DISTRICTS.find(function(d){ return d.id === (P.viewDistrict || P.district); });
+  if (!dist) { el.innerHTML = 'Night City'; return; }
+  var sub = dist.subs && P.viewSub ? dist.subs.find(function(s){ return s.id === P.viewSub; }) : null;
+  if (sub) el.innerHTML = '<b>'+dist.name+'</b> › '+sub.name+' · <span class="faction">'+sub.faction+'</span>';
+  else if (P.mapView === 'district' || P.viewDistrict) el.innerHTML = '<b>'+dist.name+'</b>';
+  else el.innerHTML = '<b>Night City</b>';
+}
+function updateHudAmmo() {
+  var el = document.getElementById('hud-ammo'); if (!el) return;
+  var w = itemById(P.equipped.weapon);
+  var subtype = w ? (w.subtype || 'pistol') : 'melee';
+  var key = ammoKeyForSubtype(subtype);
+  if (!key) {
+    el.innerHTML = '<span class="ammo-melee">Cuerpo a cuerpo — sin munición</span><span>'+(w?w.name:'Puños')+'</span>';
+    return;
+  }
+  var a = AMMO_TYPES[key];
+  var q = invQty(a.id);
+  el.innerHTML = '<span class="'+(q<=0?'ammo-empty':'')+'">'+a.name+': <b>'+q+'</b></span><span style="color:var(--muted)">'+(w?w.name:'')+'</span>';
+}
+function screenFlash(type) {
+  var el = document.getElementById('screen-flash'); if (!el) return;
+  el.className = 'screen-flash ' + type;
+  el.style.opacity = '1';
+  setTimeout(function(){ el.style.opacity = '0'; }, 120);
+  setTimeout(function(){ el.className = 'screen-flash'; }, 200);
+}
+function floatDamage(amount, kind) {
+  var el = document.createElement('div');
+  el.className = 'float-dmg ' + (kind || 'enemy');
+  el.textContent = (kind === 'player' ? '−' : '') + amount;
+  el.style.left = (50 + (Math.random()*20-10)) + '%';
+  el.style.top = (kind === 'player' ? '58%' : '38%');
+  document.body.appendChild(el);
+  setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 1000);
 }
 
 /* Cyberpunk-style eddie transfer animation */
@@ -966,10 +1219,31 @@ function showEddieTransfer(delta) {
   el.className = 'eddie-transfer' + (delta < 0 ? ' spend' : '');
   var label = delta > 0 ? 'TRANSFER IN' : 'TRANSFER OUT';
   var sign = delta > 0 ? '+' : '';
+  var target = Math.abs(delta);
   el.innerHTML = '<div class="eddie-label">'+label+'</div>'+
-    '<div class="eddie-amount">'+sign+delta+' €$</div>'+
+    '<div class="eddie-amount">'+sign+'<span class="eddie-num">0</span> €$</div>'+
     '<div class="eddie-bar"><div class="eddie-bar-fill"></div></div>';
   document.body.appendChild(el);
+  var numEl = el.querySelector('.eddie-num');
+  var steps = Math.min(12, Math.max(6, Math.floor(target / 8)));
+  var step = 0;
+  function tick() {
+    step++;
+    var val = Math.round(target * (step / steps));
+    numEl.textContent = val;
+    try {
+      ensureAudio();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'square'; o.frequency.value = 880 + step * 40;
+      g.gain.value = sfxVol * 0.06;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+      o.stop(audioCtx.currentTime + 0.05);
+    } catch(e){}
+    if (step < steps) setTimeout(tick, 45);
+    else numEl.textContent = target;
+  }
+  tick();
   setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 1200);
 }
 function addXp(amount) {
@@ -984,11 +1258,112 @@ function addXp(amount) {
   updateStats();
 }
 function heal(amount) { P.hp = Math.min(P.maxHp, P.hp + amount); updateStats(); }
+function daysInMonth(m, y) {
+  return [31, (y%4===0?29:28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m-1];
+}
 function advanceTime(mins) {
   P.minutes += mins;
   while (P.minutes >= 60) { P.minutes -= 60; P.hours++; }
-  if (P.hours >= 24) P.hours -= 24;
+  while (P.hours >= 24) {
+    P.hours -= 24;
+    P.day = (P.day || 14) + 1;
+    var dim = daysInMonth(P.month || 10, P.year || 2077);
+    if (P.day > dim) {
+      P.day = 1;
+      P.month = (P.month || 10) + 1;
+      if (P.month > 12) { P.month = 1; P.year = (P.year || 2077) + 1; }
+    }
+    maybeDailyNews();
+  }
+  checkDeliveries();
   updateStats();
+}
+function totalMinutes() {
+  return ((P.year-2077)*525600) + ((P.month||10)-1)*43200 + ((P.day||14)-1)*1440 + (P.hours||0)*60 + (P.minutes||0);
+}
+function formatDate() {
+  var d = P.day || 14, m = P.month || 10, y = P.year || 2077;
+  return d + ' ' + (MONTHS_ES[m-1]||'oct') + ' ' + y;
+}
+function maybeDailyNews() {
+  if (!P.pcNews) P.pcNews = [];
+  var n = NEWS_POOL[Math.floor(Math.random()*NEWS_POOL.length)];
+  P.pcNews.unshift({ title:n.title, body:n.body, date:formatDate() });
+  if (P.pcNews.length > 12) P.pcNews.pop();
+}
+function seedPcIfNeeded() {
+  if (!P.pcMessages) P.pcMessages = [];
+  if (!P.pcNews) P.pcNews = [];
+  if (P.pcNews.length === 0) {
+    for (var i=0;i<4;i++) {
+      var n = NEWS_POOL[(i*3)%NEWS_POOL.length];
+      P.pcNews.push({ title:n.title, body:n.body, date:formatDate() });
+    }
+  }
+  if (P.pcMessages.length === 0) {
+    P.pcMessages.push({ from:'Sistema', text:'Bienvenido a tu terminal doméstico. Conexión segura (más o menos).', read:false, date:formatDate() });
+    var m = MSG_POOL[Math.floor(Math.random()*MSG_POOL.length)];
+    P.pcMessages.push({ from:m.from, text:m.text, read:false, date:formatDate() });
+  }
+}
+function checkDeliveries() {
+  var now = totalMinutes();
+  if (P.foodOrder && now >= P.foodOrder.readyAt) {
+    heal(P.foodOrder.heal);
+    logMsg('Pedido llegado: '+P.foodOrder.name+' (+'+P.foodOrder.heal+' HP).', 'loot');
+    sfxHeal();
+    P.foodOrder = null;
+  }
+  if (P.joyOrder && now >= P.joyOrder.readyAt) {
+    heal(P.joyOrder.heal);
+    logMsg('Tu cita con '+P.joyOrder.name+' ha terminado. Te sientes mejor (+'+P.joyOrder.heal+' HP).', 'sys');
+    sfxHeal();
+    P.joyOrder = null;
+  }
+}
+function orderFood(fid) {
+  if (P.foodOrder) { sfxError(); logMsg('Ya tienes comida en camino.', 'sys'); return; }
+  var f = FOOD_MENU.find(function(x){ return x.id===fid; }); if (!f) return;
+  if (P.eddies < f.cost) { sfxError(); logMsg('Sin eddies para pedir.', 'sys'); return; }
+  changeEddies(-f.cost);
+  P.foodOrder = { name:f.name, heal:f.heal, readyAt: totalMinutes() + f.wait };
+  sfxBuy(); logMsg('Pedido: '+f.name+'. Llegará en ~'+f.wait+' min.', 'sys');
+  save(); render();
+}
+function orderJoytoy(jid) {
+  if (P.joyOrder) { sfxError(); logMsg('Ya tienes una cita pendiente.', 'sys'); return; }
+  var j = JOYTOY_MENU.find(function(x){ return x.id===jid; }); if (!j) return;
+  if (P.eddies < j.cost) { sfxError(); logMsg('Sin eddies para el servicio.', 'sys'); return; }
+  changeEddies(-j.cost);
+  P.joyOrder = { name:j.name, heal:j.heal, readyAt: totalMinutes() + j.wait };
+  sfxBuy(); logMsg('Cita reservada: '+j.name+'. Espera ~'+j.wait+' min.', 'sys');
+  save(); render();
+}
+function doPcBiz(bid) {
+  var b = PC_BIZ.find(function(x){ return x.id===bid; }); if (!b) return;
+  if (P.eddies < b.cost) { sfxError(); logMsg('Sin eddies.', 'sys'); return; }
+  changeEddies(-b.cost);
+  if (b.item) {
+    addItem(b.item, 1); sfxLoot(); logMsg('Data shard recibido.', 'loot');
+  } else if (b.msg) {
+    var m = MSG_POOL[Math.floor(Math.random()*MSG_POOL.length)];
+    if (!P.pcMessages) P.pcMessages = [];
+    P.pcMessages.unshift({ from:m.from, text:m.text, read:false, date:formatDate() });
+    sfxBuy(); logMsg('Nuevo mensaje en tu bandeja.', 'sys');
+  } else {
+    var gain = b.min + Math.floor(Math.random()*(b.max-b.min+1));
+    changeEddies(gain);
+    logMsg('Inversión cerrada: '+(gain>=b.cost?'+':'')+(gain-b.cost)+' €$ netos.', gain>=b.cost?'loot':'sys');
+  }
+  advanceTime(15); save(); render();
+}
+function refreshNews() {
+  maybeDailyNews(); sfxClick(); save(); render();
+}
+function markMessagesRead() {
+  if (!P.pcMessages) return;
+  P.pcMessages.forEach(function(m){ m.read = true; });
+  save(); render();
 }
 
 /* ===== QUESTS / FIXERS ===== */
@@ -1065,9 +1440,13 @@ function combatAttack() {
     logMsg('−'+cost+' '+AMMO_TYPES[ammoKey].name, 'sys');
   }
   sfxWeapon(subtype);
-  var dmg = Math.max(1, getWeaponDmg() + Math.floor(Math.random()*5) - 1);
+  var base = getWeaponDmg() + Math.floor(Math.random()*5) - 1;
+  var crit = Math.random() < 0.12;
+  var dmg = Math.max(1, crit ? Math.floor(base * 1.6) : base);
   e.hp -= dmg;
-  logMsg('Atacas a '+e.name+' con '+(w?w.name:'puños')+' por '+dmg+'.', 'combat');
+  floatDamage(dmg, crit ? 'crit' : 'enemy');
+  if (crit) screenFlash('crit');
+  logMsg('Atacas a '+e.name+' con '+(w?w.name:'puños')+' por '+dmg+(crit?' ¡CRÍTICO!':'')+'.', 'combat');
   if (e.hp <= 0) { endCombat(true); return; }
   P.combat.turn = 'enemy'; setTimeout(enemyTurn, 450); render();
 }
@@ -1089,11 +1468,38 @@ function combatFlee() {
   if (Math.random() < chance) { logMsg('Escapas por los callejones.', 'sys'); sfxClick(); P.combat = null; advanceTime(5); render(); }
   else { logMsg('¡No puedes escapar!', 'combat'); sfxError(); P.combat.turn = 'enemy'; setTimeout(enemyTurn, 400); render(); }
 }
+function combatHack() {
+  if (!P.combat || P.combat.turn !== 'player') return;
+  var deck = (P.equipped.cyberware||{}).chip;
+  if (!deck) { sfxError(); logMsg('Necesitas un cyberdeck en el slot Chip.', 'combat'); return; }
+  var h = itemById(P.equipped.hack);
+  if (!h || h.type !== 'quickhack') { sfxError(); logMsg('No tienes un quickhack equipado.', 'combat'); return; }
+  var e = P.combat.enemy;
+  var dmg = (h.hackDmg||10) + getSkillBonus('hackDmg') + Math.floor(Math.random()*4);
+  var deckBonus = itemById(deck);
+  if (deckBonus && deckBonus.bonusDmg) dmg += deckBonus.bonusDmg;
+  e.hp -= dmg;
+  sfxWeapon('tech');
+  floatDamage(dmg, 'crit');
+  screenFlash('crit');
+  logMsg('Hack «'+h.name+'» → '+e.name+' por '+dmg+'.', 'combat');
+  if (h.skipEnemy) {
+    logMsg(e.name+' queda atontado este turno.', 'sys');
+    if (e.hp <= 0) { endCombat(true); return; }
+    P.combat.turn = 'player';
+    save(); render();
+    return;
+  }
+  if (e.hp <= 0) { endCombat(true); return; }
+  P.combat.turn = 'enemy'; setTimeout(enemyTurn, 450); render();
+}
+
 function enemyTurn() {
   if (!P.combat) return;
   var e = P.combat.enemy, raw = e.dmg + Math.floor(Math.random()*4);
   var dmg = Math.max(1, raw - Math.floor(getArmorDef()*0.6));
-  P.hp -= dmg; sfxHurt(); logMsg(e.name+' te golpea por '+dmg+'.', 'combat');
+  P.hp -= dmg; sfxHurt(); screenFlash('hurt'); floatDamage(dmg, 'player');
+  logMsg(e.name+' te golpea por '+dmg+'.', 'combat');
   if (P.hp <= 0) {
     P.hp = 0; logMsg('Has caído... Un fixer te arrastra al ripperdoc. Pierdes eddies.', 'combat');
     var loss = Math.floor(P.eddies*0.15);
@@ -1105,7 +1511,7 @@ function enemyTurn() {
 function endCombat(won) {
   var e = P.combat.enemy; P.combat = null;
   if (won) {
-    sfxWin(); logMsg('Has derrotado a '+e.name+'.', 'combat');
+    sfxWin(); screenFlash('loot'); logMsg('Has derrotado a '+e.name+'.', 'combat');
     var gain = e.eddies[0] + Math.floor(Math.random()*(e.eddies[1]-e.eddies[0]+1));
     var eddiesPct = getSkillBonus('eddiesPct');
     gain = Math.floor(gain * (1 + eddiesPct));
@@ -1292,18 +1698,33 @@ function useItem(id) {
 function ownsChrome(id) {
   return P.ownedChrome.indexOf(id) >= 0 || invQty(id) > 0;
 }
-function installChrome(id) {
-  var def = itemById(id); if (!def || def.type !== 'cyberware') return;
-  if (!ownsChrome(id)) { sfxError(); logMsg('No posees ese chrome.', 'sys'); return; }
+function installChrome(id, forceSlot) {
+  var def = itemById(id); if (!def || (def.type !== 'cyberware' && def.type !== 'quickhack')) return;
+  if (!ownsChrome(id) && invQty(id) <= 0) { sfxError(); logMsg('No posees ese chrome.', 'sys'); return; }
   if (!P.equipped.cyberware) P.equipped.cyberware = {};
-  /* free inv copy into owned */
-  if (invQty(id) > 0 && P.ownedChrome.indexOf(id) < 0) {
+  if (invQty(id) > 0 && (P.ownedChrome||[]).indexOf(id) < 0) {
     removeItem(id,1); P.ownedChrome.push(id);
-  } else if (invQty(id) > 0 && !(P.equipped.cyberware[def.slot] === id)) {
-    /* already owned, item in inv is extra - just use owned */
   }
-  P.equipped.cyberware[def.slot] = id;
-  recalcMaxHp(); sfxBuy(); logMsg('Instalado: '+def.name, 'sys');
+  var slot = forceSlot || def.slot;
+  /* map generic hand/leg to a free side if needed */
+  if (slot === 'hand') {
+    if (!P.equipped.cyberware.hand_l) slot = 'hand_l';
+    else if (!P.equipped.cyberware.hand_r) slot = 'hand_r';
+    else slot = 'hand_l';
+  }
+  if (slot === 'leg') {
+    if (!P.equipped.cyberware.leg_l) slot = 'leg_l';
+    else if (!P.equipped.cyberware.leg_r) slot = 'leg_r';
+    else slot = 'leg_l';
+  }
+  if (def.type === 'quickhack') {
+    P.equipped.hack = id;
+    if (!(P.ownedChrome||[]).includes(id) && invQty(id)>0) { removeItem(id,1); P.ownedChrome.push(id); }
+    sfxBuy(); logMsg('Hack equipado: '+def.name, 'sys');
+  } else {
+    P.equipped.cyberware[slot] = id;
+    recalcMaxHp(); sfxBuy(); logMsg('Instalado en '+(SLOT_LABEL[slot]||slot)+': '+def.name, 'sys');
+  }
   document.getElementById('modal-slot').classList.add('hidden');
   save(); render();
 }
@@ -1327,28 +1748,46 @@ function openSlotModal(slot) {
   sfxClick();
   var body = document.getElementById('modal-slot-body');
   var slotInfo = CHROME_SLOTS.find(function(s){ return s.id === slot; });
-  var installedId = (P.equipped.cyberware || {})[slot];
-  var installed = installedId ? itemById(installedId) : null;
-  var options = CHROME_SHOP.map(itemById).filter(function(c){ return c && c.slot === slot; });
-  var html = '<h3>'+(slotInfo?slotInfo.label:slot)+'</h3>';
-  if (installed) {
-    html += '<div class="chrome-card installed" style="margin-bottom:10px"><div class="item-name '+rarityClass(installed.rarity)+'">'+installed.name+'</div>'+
-      '<div class="item-meta">'+installed.desc+'</div><div class="stat-chip" style="margin-top:6px">'+(installed.ability||'')+'</div>'+
-      '<button class="danger" style="margin-top:8px;width:100%" onclick="uninstallChromeSlot(\''+slot+'\')">Desinstalar</button></div>';
+  var accept = slotInfo ? slotInfo.accept : [slot];
+  var equippedId = (P.equipped.cyberware || {})[slot];
+  var eq = equippedId ? itemById(equippedId) : null;
+  var html = '<h3>'+(slotInfo?slotInfo.name:slot)+'</h3>';
+  if (eq) {
+    html += '<div class="item-card" style="margin:10px 0"><div class="item-name '+rarityClass(eq.rarity)+'">'+eq.name+'</div>'+
+      '<div class="item-meta">'+(eq.ability||eq.desc)+'</div>'+
+      '<div class="item-actions"><button class="danger" onclick="uninstallChromeSlot(\''+slot+'\')">Desinstalar</button></div></div>';
   } else {
-    html += '<p style="font-size:12px;color:var(--muted)">Slot vacío. Elige chrome para instalar:</p>';
+    html += '<p style="font-size:12px;color:var(--muted)">Slot vacío. Elige chrome que poseas.</p>';
   }
-  options.forEach(function(c){
-    var owned = ownsChrome(c.id);
-    var isInst = installedId === c.id;
-    html += '<div class="chrome-card '+(isInst?'installed':owned?'owned':'')+'" style="margin-bottom:8px">'+
+  /* owned items matching accept slots */
+  var owned = [];
+  (P.ownedChrome||[]).forEach(function(id){
+    var c = itemById(id);
+    if (c && accept.indexOf(c.slot) >= 0) owned.push(c);
+  });
+  P.inv.forEach(function(s){
+    var c = itemById(s.id);
+    if (c && (c.type==='cyberware'||c.type==='quickhack') && accept.indexOf(c.slot) >= 0) {
+      if (!owned.some(function(o){ return o.id===c.id; })) owned.push(c);
+    }
+  });
+  /* for chip: also show quickhacks as equippable combat programs */
+  if (slot === 'chip') {
+    P.inv.forEach(function(s){
+      var c = itemById(s.id);
+      if (c && c.type==='quickhack' && !owned.some(function(o){ return o.id===c.id; })) owned.push(c);
+    });
+  }
+  html += '<div class="section-label">Disponible</div>';
+  if (!owned.length) html += '<div class="empty-state">No tienes chrome para este slot. Búscalo en el mercado o en las calles.</div>';
+  owned.forEach(function(c){
+    var isOn = equippedId === c.id;
+    html += '<div class="item-card"><div class="item-card-top"><div>'+
       '<div class="item-name '+rarityClass(c.rarity)+'">'+c.name+'</div>'+
-      '<div class="item-meta">'+c.desc+'</div>'+
-      '<div class="item-stats-row"><span class="stat-chip">'+(c.ability||'')+'</span><span class="stat-chip">'+c.value+' €$</span></div><div style="margin-top:8px">';
-    if (isInst) html += '<button disabled>Instalado</button>';
-    else if (owned) html += '<button class="green" onclick="installChrome('+c.id+')">Instalar</button>';
-    else html += '<button class="gold" onclick="buyChrome('+c.id+')">Comprar</button>';
-    html += '</div></div>';
+      '<div class="item-meta">'+(c.ability||c.desc)+'</div></div></div>'+
+      '<div class="item-actions">'+
+      (isOn?'<span class="equipped-tag">INSTALADO</span>':'<button onclick="installChrome('+c.id+',\''+slot+'\')">Instalar</button>')+
+      '</div></div>';
   });
   html += '<button class="ghost" style="width:100%;margin-top:8px" onclick="document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Cerrar</button>';
   body.innerHTML = html;
@@ -1358,10 +1797,14 @@ function openSlotModal(slot) {
 var SHOP_WEAPONS = [1,2,3,4,5,6,7,8,28,29,33,34,36,38,41,42];
 var SHOP_ARMOR = [10,11,12,13,14,15,16,17,45,46];
 var SHOP_CONSUMABLES = [50,51,52,53,54,55,56,57,58];
-function buyItem(id) {
+function buyItem(id, qty) {
+  qty = qty || 1;
   var def = itemById(id); if (!def) return;
-  if (P.eddies < def.value) { sfxError(); logMsg('No tienes suficientes eddies.', 'sys'); return; }
-  changeEddies(-def.value); addItem(id,1); sfxBuy(); logMsg('Comprado: '+def.name, 'loot'); save(); render();
+  var price = def.value * qty;
+  if (P.eddies < price) { sfxError(); logMsg('No tienes suficientes eddies.', 'sys'); return; }
+  changeEddies(-price); addItem(id, qty); sfxBuy();
+  logMsg('Comprado: '+def.name+(qty>1?' ×'+qty:'')+' (−'+price+' €$)', 'loot');
+  save(); render();
 }
 function sellItem(id, fromStorage) {
   var def = itemById(id); if (!def) return;
@@ -1470,15 +1913,19 @@ function rarityClass(r) { return 'rarity-'+(r||'common'); }
 function render() {
   updateStats(); renderLog();
   var main = document.getElementById('main');
-  if (P.combat) { renderCombat(main); return; }
-  if (currentTab==='map') renderMap(main);
-  else if (currentTab==='inv') renderInv(main);
-  else if (currentTab==='chrome') renderChrome(main);
-  else if (currentTab==='fixers') renderFixers(main);
-  else if (currentTab==='craft') renderCraft(main);
-  else if (currentTab==='skills') renderSkills(main);
-  else if (currentTab==='apt') renderApt(main);
-  else if (currentTab==='shop') renderShop(main);
+  main.classList.add('fading');
+  setTimeout(function(){
+    if (P.combat) { renderCombat(main); }
+    else if (currentTab==='map') renderMap(main);
+    else if (currentTab==='inv') renderInv(main);
+    else if (currentTab==='chrome') renderChrome(main);
+    else if (currentTab==='fixers') renderFixers(main);
+    else if (currentTab==='craft') renderCraft(main);
+    else if (currentTab==='skills') renderSkills(main);
+    else if (currentTab==='shop') renderShop(main);
+    else if (currentTab==='apt') renderApt(main);
+    main.classList.remove('fading');
+  }, 80);
 }
 
 function renderCombat(main) {
@@ -1507,7 +1954,8 @@ function renderCombat(main) {
     ammoHtml+
     '<div class="combat-actions"><button onclick="combatAttack()" '+(P.combat.turn!=='player'?'disabled':'')+'>ATACAR</button>'+
     '<button onclick="combatHeal()" '+(P.combat.turn!=='player'?'disabled':'')+'>CURAR</button>'+
-    '<button class="danger" onclick="combatFlee()" '+(P.combat.turn!=='player'?'disabled':'')+'>HUIR</button></div></div>';
+    '<button class="danger" onclick="combatFlee()" '+(P.combat.turn!=='player'?'disabled':'')+'>HUIR</button>'+
+    '<button class="magenta" onclick="combatHack()" '+(P.combat.turn!=='player'?'disabled':'')+'>HACK</button></div></div>';
 }
 
 function renderMap(main) {
@@ -1556,59 +2004,86 @@ function renderMap(main) {
 }
 
 function renderInv(main) {
-  var filters = [
-    {id:'all',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Atuendos'},
-    {id:'consumable',label:'Curativos'},{id:'ammo',label:'Munición'},{id:'cyberware',label:'Chrome'},{id:'component',label:'Comp.'}
+  var top = [
+    {id:'bag',label:'Mochila'},
+    {id:'gear',label:'Equipo'}
   ];
-  var w = itemById(P.equipped.weapon), a = itemById(P.equipped.armor);
-  var html = '<div class="equipped-bar">'+
-    '<div class="equipped-slot"><div class="slot-lbl">Arma equipada</div>'+
-    '<div class="slot-name">'+(w?w.name:'— Ninguna —')+'</div>'+
-    '<div class="slot-stats">'+(w?'DMG '+w.dmg+' · '+w.subtype:'')+'</div></div>'+
-    '<div class="equipped-slot"><div class="slot-lbl">Atuendo equipado</div>'+
-    '<div class="slot-name">'+(a?a.name:'— Ninguno —')+'</div>'+
-    '<div class="slot-stats">'+(a?'DEF '+a.def:'')+'</div></div></div>';
+  var html = '<div class="subtabs">'+top.map(function(f){
+    return '<button class="'+(invSub===f.id||(invSub!=='gear'&&f.id==='bag'&&invSub!=='gear')?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
+  }).join('')+'</div>';
+
+  /* fix active state */
+  html = '<div class="subtabs">'+top.map(function(f){
+    var active = (invSub==='gear' && f.id==='gear') || (invSub!=='gear' && f.id==='bag');
+    return '<button class="'+(active?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
+  }).join('')+'</div>';
+
+  if (invSub === 'gear') {
+    var w = itemById(P.equipped.weapon), a = itemById(P.equipped.armor), h = itemById(P.equipped.hack);
+    html += '<div class="equip-body">'+
+      '<svg class="body-svg" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">'+
+      '<ellipse cx="50" cy="18" rx="14" ry="16" fill="none" stroke="rgba(0,232,255,0.35)" stroke-width="1.5"/>'+
+      '<path d="M50 34 L50 85 M50 50 L28 70 M50 50 L72 70 M50 85 L32 130 M50 85 L68 130" fill="none" stroke="rgba(0,232,255,0.3)" stroke-width="2" stroke-linecap="round"/>'+
+      '</svg>'+
+      '<div class="equip-slot es-weapon '+(w?'filled':'')+'" onclick="openEquipModal(\'weapon\')"><div class="es-title">Arma</div><div class="es-name">'+(w?w.name:'—')+'</div></div>'+
+      '<div class="equip-slot es-armor '+(a?'filled':'')+'" onclick="openEquipModal(\'armor\')"><div class="es-title">Atuendo</div><div class="es-name">'+(a?a.name:'—')+'</div></div>'+
+      '<div class="equip-slot es-hack '+(h?'filled':'')+'" onclick="openEquipModal(\'hack\')"><div class="es-title">Hack</div><div class="es-name">'+(h?h.name:'—')+'</div></div>'+
+      '</div>';
+    html += '<p style="font-size:12px;color:var(--muted);text-align:center">Toca un slot para equipar desde la mochila.</p>';
+    html += '<div class="item-stats-row" style="justify-content:center;margin-top:8px">'+
+      '<span class="stat-chip">DMG '+getWeaponDmg()+'</span>'+
+      '<span class="stat-chip">ARM '+getArmorDef()+'</span>'+
+      '<span class="stat-chip">HP '+P.maxHp+'</span></div>';
+    main.innerHTML = html;
+    return;
+  }
+
+  /* Mochila */
+  if (invSub === 'bag' || invSub === 'all' || !invSub) invSub = 'bag';
+  var filters = [
+    {id:'bag',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Atuendos'},
+    {id:'consumable',label:'Curativos'},{id:'ammo',label:'Munición'},
+    {id:'cyberware',label:'Chrome'},{id:'quickhack',label:'Hacks'},{id:'component',label:'Comp.'}
+  ];
+  /* bag uses invFilter */
+  if (!window._invFilter) window._invFilter = 'all';
   html += '<div class="subtabs">'+filters.map(function(f){
-    return '<button class="'+(invSub===f.id?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
+    var fid = f.id==='bag'?'all':f.id;
+    return '<button class="'+(_invFilter===fid?'active':'')+'" onclick="_invFilter=\''+fid+'\';render()">'+f.label+'</button>';
   }).join('')+'</div><div class="item-list">';
 
   normalizeInv();
   var items = P.inv.map(function(slot){ return {id:slot.id, qty:slot.qty, def:itemById(slot.id)}; }).filter(function(x){ return x.def; });
-  var filtered = invSub==='all' ? items : items.filter(function(x){ return x.def.type===invSub; });
+  var filtered = _invFilter==='all' ? items : items.filter(function(x){ return x.def.type===_invFilter; });
 
-  if (!filtered.length) html += '<div class="empty-state">Inventario vacío en esta categoría.</div>';
+  if (!filtered.length) html += '<div class="empty-state">Mochila vacía en esta categoría.</div>';
   else filtered.forEach(function(slot){
     var id=slot.id, qty=slot.qty, def=slot.def;
     var isEqW = P.equipped.weapon === id;
     var isEqA = P.equipped.armor === id;
     var isEqC = Object.keys(P.equipped.cyberware||{}).some(function(s){ return P.equipped.cyberware[s]===id; });
-    var isEq = isEqW || isEqA || isEqC;
-    /* show total qty; if equipped, still one entry (not duplicated) */
-    var displayQty = qty;
+    var isEqH = P.equipped.hack === id;
+    var isEq = isEqW || isEqA || isEqC || isEqH;
     var eqTag = isEq ? '<span class="equipped-tag">EQUIPADO</span>' : '';
-
     var chips = '';
-    if (def.type==='weapon') chips = '<span class="stat-chip">DMG '+def.dmg+'</span><span class="stat-chip">'+def.subtype+'</span><span class="stat-chip">'+(def.rarity||'')+'</span>';
-    else if (def.type==='armor') chips = '<span class="stat-chip">DEF '+def.def+'</span><span class="stat-chip">'+(def.rarity||'')+'</span>';
+    if (def.type==='weapon') chips = '<span class="stat-chip">DMG '+def.dmg+'</span><span class="stat-chip">'+def.subtype+'</span>';
+    else if (def.type==='armor') chips = '<span class="stat-chip">DEF '+def.def+'</span>';
     else if (def.type==='consumable') chips = '<span class="stat-chip">+'+def.heal+' HP</span>';
-    else if (def.type==='cyberware') chips = '<span class="stat-chip">'+(def.ability||def.slot)+'</span>';
+    else if (def.type==='cyberware'||def.type==='quickhack') chips = '<span class="stat-chip">'+(def.ability||def.slot)+'</span>';
     else if (def.type==='component') chips = '<span class="stat-chip">Desguace</span>';
     else if (def.type==='ammo') chips = '<span class="stat-chip">Munición</span>';
     chips += '<span class="stat-chip">'+def.value+' €$</span>';
-
     var actions = '';
     if (def.type==='weapon') {
-      if (isEqW) actions = '<button class="ghost" onclick="unequipWeapon()">Desequipar</button>';
-      else actions = '<button onclick="equipItem('+id+')">Equipar</button>';
+      actions = isEqW ? '<button class="ghost" onclick="unequipWeapon()">Desequipar</button>' : '<button onclick="equipItem('+id+')">Equipar</button>';
       actions += '<button class="danger" onclick="disassembleItem('+id+')">Desguazar</button>';
     } else if (def.type==='armor') {
-      if (isEqA) actions = '<button class="ghost" onclick="unequipArmor()">Desequipar</button>';
-      else actions = '<button onclick="equipItem('+id+')">Equipar</button>';
+      actions = isEqA ? '<button class="ghost" onclick="unequipArmor()">Desequipar</button>' : '<button onclick="equipItem('+id+')">Equipar</button>';
       actions += '<button class="danger" onclick="disassembleItem('+id+')">Desguazar</button>';
     } else if (def.type==='cyberware') {
-      actions = isEqC
-        ? '<button class="danger" onclick="uninstallChromeSlot(\''+def.slot+'\')">Quitar</button>'
-        : '<button onclick="installChrome('+id+')">Instalar</button>';
+      actions = '<button onclick="installChrome('+id+')">Instalar</button>';
+    } else if (def.type==='quickhack') {
+      actions = isEqH ? '<button class="ghost" onclick="P.equipped.hack=null;save();render()">Quitar</button>' : '<button class="magenta" onclick="installChrome('+id+',\\\'chip\\\')">Equipar hack</button>';
     } else if (def.type==='consumable') {
       actions = '<button class="green" onclick="useItem('+id+')">Usar</button>';
     }
@@ -1618,9 +2093,8 @@ function renderInv(main) {
     } else {
       actions += '<button class="gold" onclick="sellItem('+id+')">Vender</button>';
     }
-
-    html += '<div class="item-card'+(isEq?' equipped-item':'')+'"><div class="item-card-top"><div>'+
-      '<div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(displayQty>1?' ×'+displayQty:'')+eqTag+'</div>'+
+    html += '<div class="item-card"><div class="item-card-top"><div>'+
+      '<div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(qty>1?' ×'+qty:'')+' '+eqTag+'</div>'+
       '<div class="item-meta">'+def.desc+'</div>'+
       '<div class="item-stats-row">'+chips+'</div></div></div>'+
       '<div class="item-actions">'+actions+'</div></div>';
@@ -1629,43 +2103,60 @@ function renderInv(main) {
   main.innerHTML = html;
 }
 
+function openEquipModal(kind) {
+  sfxClick();
+  var body = document.getElementById('modal-slot-body');
+  var title = kind==='weapon'?'Arma':kind==='armor'?'Atuendo':'Quickhack';
+  var html = '<h3>'+title+'</h3>';
+  var list = P.inv.map(function(s){ return itemById(s.id); }).filter(function(d){
+    if (!d) return false;
+    if (kind==='weapon') return d.type==='weapon';
+    if (kind==='armor') return d.type==='armor';
+    return d.type==='quickhack';
+  });
+  if (!list.length) html += '<div class="empty-state">No tienes nada de este tipo en la mochila.</div>';
+  list.forEach(function(def){
+    var eq = (kind==='weapon'&&P.equipped.weapon===def.id)||(kind==='armor'&&P.equipped.armor===def.id)||(kind==='hack'&&P.equipped.hack===def.id);
+    html += '<div class="item-card"><div class="item-name '+rarityClass(def.rarity)+'">'+def.name+'</div>'+
+      '<div class="item-meta">'+def.desc+'</div><div class="item-actions">';
+    if (eq) html += '<span class="equipped-tag">EQUIPADO</span>';
+    else if (kind==='hack') html += '<button class="magenta" onclick="installChrome('+def.id+',\'chip\')">Equipar</button>';
+    else html += '<button onclick="equipItem('+def.id+');document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Equipar</button>';
+    html += '</div></div>';
+  });
+  if (kind==='weapon' && P.equipped.weapon) html += '<button class="ghost" style="width:100%" onclick="unequipWeapon();document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar arma</button>';
+  if (kind==='armor' && P.equipped.armor) html += '<button class="ghost" style="width:100%" onclick="unequipArmor();document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar atuendo</button>';
+  if (kind==='hack' && P.equipped.hack) html += '<button class="ghost" style="width:100%" onclick="P.equipped.hack=null;save();document.getElementById(\'modal-slot\').classList.add(\'hidden\');render()">Quitar hack</button>';
+  html += '<button class="ghost" style="width:100%;margin-top:8px" onclick="document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Cerrar</button>';
+  body.innerHTML = html;
+  document.getElementById('modal-slot').classList.remove('hidden');
+}
+
 function renderChrome(main) {
-  var html = '<div class="chrome-layout"><div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">Toca un slot de la silueta para instalar chrome</div>';
+  var html = '<div class="section-label">Chrome instalado</div>';
+  html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Toca un punto del cuerpo para instalar. Compra chrome en el <b>Mercado</b>.</p>';
   html += '<div class="chrome-silhouette-wrap"><div class="chrome-body">';
-  /* simple body silhouette with SVG */
-  html += '<svg class="body-svg" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">'+
-    '<ellipse cx="100" cy="36" rx="28" ry="32" fill="none" stroke="#1a4055" stroke-width="2"/>'+
-    '<path d="M70 70 Q100 85 130 70 L145 160 Q100 175 55 160 Z" fill="none" stroke="#1a4055" stroke-width="2"/>'+
-    '<path d="M55 90 L25 150" fill="none" stroke="#1a4055" stroke-width="2"/>'+
-    '<path d="M145 90 L175 150" fill="none" stroke="#1a4055" stroke-width="2"/>'+
-    '<path d="M75 165 L65 280" fill="none" stroke="#1a4055" stroke-width="2"/>'+
-    '<path d="M125 165 L135 280" fill="none" stroke="#1a4055" stroke-width="2"/>'+
+  html += '<svg class="body-svg" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">'+
+    '<ellipse cx="50" cy="18" rx="14" ry="16" fill="none" stroke="rgba(0,232,255,0.35)" stroke-width="1.5"/>'+
+    '<path d="M50 34 L50 85 M50 50 L28 70 M50 50 L72 70 M50 85 L32 130 M50 85 L68 130" fill="none" stroke="rgba(0,232,255,0.3)" stroke-width="2" stroke-linecap="round"/>'+
     '</svg>';
   CHROME_SLOTS.forEach(function(s){
     var cid = (P.equipped.cyberware||{})[s.id];
     var c = cid ? itemById(cid) : null;
-    html += '<div class="chrome-slot '+s.cls+(c?' filled':' empty')+'" onclick="openSlotModal(\''+s.id+'\')">'+
-      '<div class="slot-title">'+s.label+'</div>'+
-      '<div class="slot-item">'+(c ? c.name : '— vacío —')+'</div></div>';
+    if (s.id === 'chip' && P.equipped.hack) {
+      var h = itemById(P.equipped.hack);
+      html += '<div class="chrome-slot '+s.cls+(h||c?' filled':' empty')+'" onclick="openSlotModal(\''+s.id+'\')">'+
+        '<div class="slot-title">'+s.name+'</div>'+
+        '<div class="slot-item">'+(c?c.name.split(' ')[0]:'Deck')+(h?' · '+(h.name.split(' ')[0]):'')+'</div></div>';
+    } else {
+      html += '<div class="chrome-slot '+s.cls+(c?' filled':' empty')+'" onclick="openSlotModal(\''+s.id+'\')">'+
+        '<div class="slot-title">'+s.name+'</div>'+
+        '<div class="slot-item">'+(c?c.name:'— vacío —')+'</div></div>';
+    }
   });
   html += '</div></div>';
-
-  html += '<div class="section-label">Tienda de chrome</div><div class="chrome-shop-list">';
-  CHROME_SHOP.forEach(function(id){
-    var c = itemById(id);
-    var owned = ownsChrome(id);
-    var inst = (P.equipped.cyberware||{})[c.slot] === id;
-    html += '<div class="chrome-card '+(inst?'installed':owned?'owned':'')+'">'+
-      '<div class="item-name '+rarityClass(c.rarity)+'">'+c.name+'</div>'+
-      '<div class="item-meta">'+c.desc+' · Slot: '+c.slot+'</div>'+
-      '<div class="item-stats-row"><span class="stat-chip">'+(c.ability||'')+'</span><span class="stat-chip">'+c.value+' €$</span></div>'+
-      '<div class="item-actions" style="margin-top:8px">';
-    if (inst) html += '<button disabled>Instalado</button>';
-    else if (owned) html += '<button class="green" onclick="installChrome('+id+')">Instalar</button>';
-    else html += '<button class="gold" onclick="buyChrome('+id+')">Comprar</button>';
-    html += '</div></div>';
-  });
-  html += '</div></div>';
+  var hack = itemById(P.equipped.hack);
+  if (hack) html += '<div style="font-size:12px;color:var(--magenta);margin-top:8px;text-align:center">Hack activo: <b>'+hack.name+'</b></div>';
   main.innerHTML = html;
 }
 
@@ -1680,77 +2171,95 @@ function renderFixers(main) {
         '<div class="gig-progress">Progreso: '+(q.progress||0)+' / '+q.target+'</div>'+
         '<div class="gig-reward">'+(q.reward.eddies||0)+' €$ · '+(q.reward.xp||0)+' XP'+(q.reward.item?' · '+itemById(q.reward.item).name:'')+'</div></div>';
     });
-  } else {
-    html += '<div class="empty-state" style="padding:12px">Ningún gig activo. Habla con un fixer para aceptar trabajo.</div>';
   }
-  html += '<div class="section-label">Fixers de Night City</div>';
+
+  html += '<div class="section-label">Contactos</div><div class="subtabs">';
   FIXERS.forEach(function(f){
-    var dist = DISTRICTS.find(function(d){ return d.id === f.district; });
-    html += '<div class="fixer-card"><div class="fixer-name">'+f.name+'</div>'+
-      '<div class="fixer-loc">'+(dist?dist.name:f.district)+'</div>'+
-      '<div class="fixer-blurb">'+f.blurb+'</div>';
-    f.gigs.forEach(function(qid){
-      var def = getQuestDef(qid); if (!def) return;
-      var done = isQuestCompleted(qid);
-      var act = isQuestActive(qid);
-      html += '<div class="gig-row '+(done?'done-gig':act?'active-gig':'')+'">'+
-        '<div class="gig-title">'+(done?'✓ ':'')+def.title+'</div>'+
-        '<div class="gig-desc">'+def.desc+'</div>'+
-        '<div class="gig-reward">'+(def.reward.eddies||0)+' €$ · '+(def.reward.xp||0)+' XP'+(def.reward.item?' · '+itemById(def.reward.item).name:'')+'</div>';
-      if (done) html += '<div class="gig-progress">Completado</div>';
-      else if (act) html += '<div class="gig-progress">En curso</div>';
-      else html += '<div style="margin-top:8px"><button class="magenta" onclick="acceptQuest(\''+qid+'\')">Aceptar gig</button></div>';
-      html += '</div>';
-    });
+    html += '<button class="'+(selectedFixer===f.id?'active':'')+'" onclick="selectedFixer=\''+f.id+'\';render()">'+f.name.split(' ')[0]+'</button>';
+  });
+  html += '</div>';
+
+  var f = FIXERS.find(function(x){ return x.id === selectedFixer; }) || FIXERS[0];
+  var dist = DISTRICTS.find(function(d){ return d.id === f.district; });
+  html += '<div class="fixer-card"><div class="fixer-name">'+f.name+'</div>'+
+    '<div class="fixer-loc">'+(dist?dist.name:f.district)+'</div>'+
+    '<div class="fixer-blurb">'+f.blurb+'</div>';
+  f.gigs.forEach(function(qid){
+    var def = getQuestDef(qid); if (!def) return;
+    var done = isQuestCompleted(qid);
+    var act = isQuestActive(qid);
+    html += '<div class="gig-row '+(done?'done-gig':act?'active-gig':'')+'">'+
+      '<div class="gig-title">'+(done?'✓ ':'')+def.title+'</div>'+
+      '<div class="gig-desc">'+def.desc+'</div>'+
+      '<div class="gig-reward">'+(def.reward.eddies||0)+' €$ · '+(def.reward.xp||0)+' XP'+(def.reward.item?' · '+itemById(def.reward.item).name:'')+'</div>';
+    if (done) html += '<div class="gig-progress">Completado</div>';
+    else if (act) html += '<div class="gig-progress">En curso</div>';
+    else html += '<div style="margin-top:8px"><button class="magenta" onclick="acceptQuest(\''+qid+'\')">Aceptar gig</button></div>';
     html += '</div>';
   });
+  html += '</div>';
   main.innerHTML = html;
 }
 
 function renderCraft(main) {
-  var html = '<div class="subtabs">'+
-    '<button class="'+(craftSub==='disassemble'?'active':'')+'" onclick="craftSub=\'disassemble\';render()">Desguazar</button>'+
-    '<button class="'+(craftSub==='craft'?'active':'')+'" onclick="craftSub=\'craft\';render()">Fabricar</button></div>';
+  var tabs = [
+    {id:'scrap', label:'Desguazar'},
+    {id:'weapons', label:'Armas'},
+    {id:'armor', label:'Atuendos'},
+    {id:'ammo', label:'Munición'},
+    {id:'consumables', label:'Curativos'},
+  ];
+  var html = '<div class="subtabs">'+tabs.map(function(t){
+    return '<button class="'+(craftSub===t.id?'active':'')+'" onclick="craftSub=\''+t.id+'\';render()">'+t.label+'</button>';
+  }).join('')+'</div>';
 
-  html += '<div class="section-label">Componentes</div><div class="comp-bar">';
+  html += '<div class="comp-bar">';
   [200,201,202,203,204].forEach(function(cid){
     var c = itemById(cid);
-    html += '<span class="comp-chip '+rarityClass(c.rarity)+'">'+c.name.replace('Componente ','')+': '+invQty(cid)+'</span>';
+    html += '<span class="comp-chip '+rarityClass(c.rarity)+'">'+(c.name.replace('Componente ',''))+': <b>'+invQty(cid)+'</b></span>';
   });
   html += '</div>';
 
-  if (craftSub === 'disassemble') {
-    html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Desguaza armas o atuendos para obtener <b>1 componente de su rango</b> (común → legendario). Las skills de Técnica pueden dar extras.</p>';
+  if (craftSub === 'scrap') {
+    html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Desguaza equipo → 1 componente de su rango.</p>';
     normalizeInv();
     var gear = P.inv.map(function(s){ return {id:s.id, qty:s.qty, def:itemById(s.id)}; })
       .filter(function(x){ return x.def && (x.def.type==='weapon'||x.def.type==='armor'); });
-    if (!gear.length) html += '<div class="empty-state">No tienes armas ni atuendos para desguazar.</div>';
+    if (!gear.length) html += '<div class="empty-state">Nada que desguazar.</div>';
     else {
       html += '<div class="item-list">';
       gear.forEach(function(slot){
         var def = slot.def, eq = (P.equipped.weapon===slot.id||P.equipped.armor===slot.id);
         html += '<div class="item-card"><div class="item-card-top"><div>'+
           '<div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(slot.qty>1?' ×'+slot.qty:'')+(eq?' <span class="equipped-tag">EQUIP</span>':'')+'</div>'+
-          '<div class="item-meta">Rango: '+def.rarity+' → '+itemById(RARITY_COMPONENT[def.rarity]||200).name+'</div></div></div>'+
+          '<div class="item-meta">→ '+itemById(RARITY_COMPONENT[def.rarity]||200).name+'</div></div></div>'+
           '<div class="item-actions"><button class="danger" onclick="disassembleItem('+slot.id+')">Desguazar</button></div></div>';
       });
       html += '</div>';
     }
   } else {
-    html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Gasta componentes para fabricar equipo. Un tipo de componente por rango.</p>';
-    CRAFT_RECIPES.forEach(function(rec){
+    var filterFn = {
+      weapons: function(r){ var d=itemById(r.result); return d && d.type==='weapon'; },
+      armor: function(r){ var d=itemById(r.result); return d && d.type==='armor'; },
+      ammo: function(r){ return r.result >= 210 && r.result <= 213; },
+      consumables: function(r){ var d=itemById(r.result); return d && d.type==='consumable'; },
+    };
+    var list = CRAFT_RECIPES.filter(filterFn[craftSub] || function(){ return true; });
+    if (!list.length) html += '<div class="empty-state">Sin recetas en esta categoría.</div>';
+    list.forEach(function(rec){
       var res = itemById(rec.result);
       var isAmmo = rec.result >= 210 && rec.result <= 213;
       var costStr = Object.keys(rec.cost).map(function(cid){
         var need = isAmmo ? rec.cost[cid] : Math.max(1, rec.cost[cid] - (getSkillBonus('craftDiscount')||0));
         var have = invQty(+cid);
-        return itemById(+cid).name.replace('Componente ','')+': '+have+'/'+need;
+        var ok = have >= need;
+        return '<span style="color:'+(ok?'var(--green)':'var(--danger)')+'">'+(itemById(+cid).name.replace('Componente ',''))+': '+have+'/'+need+'</span>';
       }).join(' · ');
       var can = canCraft(rec);
       var title = rec.label || res.name;
       html += '<div class="craft-recipe"><div class="item-name '+rarityClass(res.rarity)+'">'+title+'</div>'+
-        '<div class="item-meta">'+res.desc+'</div>'+
-        '<div class="item-stats-row" style="margin-top:6px"><span class="stat-chip">'+costStr+'</span></div>'+
+        '<div class="item-meta">'+(res.desc||'')+'</div>'+
+        '<div style="font-size:11px;margin-top:6px">'+costStr+'</div>'+
         '<div class="item-actions" style="margin-top:8px">'+
         (can?'<button class="green" onclick="craftRecipe(\''+rec.id+'\')">Fabricar</button>':'<button disabled>Faltan piezas</button>')+
         '</div></div>';
@@ -1787,32 +2296,92 @@ function renderSkills(main) {
 }
 
 function renderApt(main) {
-  var subs = [{id:'rest',label:'Descansar'},{id:'storage',label:'Almacén'},{id:'shop',label:'Mercado'}];
+  seedPcIfNeeded();
+  checkDeliveries();
+  var subs = [{id:'rest',label:'Hogar'},{id:'pc',label:'PC'},{id:'storage',label:'Almacén'}];
   var html = '<div class="subtabs">'+subs.map(function(s){
     return '<button class="'+(aptSub===s.id?'active':'')+'" onclick="aptSub=\''+s.id+'\';render()">'+s.label+'</button>';
   }).join('')+'</div>';
 
-  if (aptSub === 'shop') {
-    var shopHtml = '<div class="subtabs">'+subs.map(function(s){
-      return '<button class="'+(aptSub===s.id?'active':'')+'" onclick="aptSub=\''+s.id+'\';render()">'+s.label+'</button>';
+  if (aptSub === 'pc') {
+    var pages = [
+      {id:'home',label:'Inicio'},{id:'news',label:'Noticias'},{id:'mail',label:'Mensajes'},
+      {id:'biz',label:'Negocios'},{id:'food',label:'Comida'},{id:'joy',label:'Joytoy'}
+    ];
+    html += '<div class="pc-shell"><div class="pc-bar">'+pages.map(function(pg){
+      return '<button class="'+(pcPage===pg.id?'active':'')+'" onclick="pcPage=\''+pg.id+'\';render()">'+pg.label+'</button>';
     }).join('')+'</div>';
-    main.innerHTML = '<div id="apt-shop-wrap"></div>';
-    var wrap = document.createElement('div');
-    renderShop(wrap);
-    main.innerHTML = shopHtml + wrap.innerHTML;
+    html += '<div style="font-size:10px;color:var(--muted);margin-bottom:8px">'+formatDate()+' · '+String(P.hours).padStart(2,'0')+':'+String(P.minutes).padStart(2,'0')+' · NET // LOCAL</div>';
+
+    if (pcPage === 'home') {
+      var unread = (P.pcMessages||[]).filter(function(m){ return !m.read; }).length;
+      html += '<div class="loc-flavor">Terminal doméstico. Noticias, pedidos y contactos sin salir del piso.</div>';
+      html += '<div class="char-stats">'+
+        '<div class="char-stat"><div class="label">Mensajes</div><div class="value">'+(P.pcMessages||[]).length+(unread?' <span style="color:var(--magenta);font-size:12px">('+unread+' nuevos)</span>':'')+'</div></div>'+
+        '<div class="char-stat"><div class="label">Noticias</div><div class="value">'+(P.pcNews||[]).length+'</div></div></div>';
+      if (P.foodOrder) {
+        var left = Math.max(0, P.foodOrder.readyAt - totalMinutes());
+        html += '<div class="order-status">Comida en camino: '+P.foodOrder.name+' (~'+left+' min)</div>';
+      }
+      if (P.joyOrder) {
+        var left2 = Math.max(0, P.joyOrder.readyAt - totalMinutes());
+        html += '<div class="order-status">Cita en curso: '+P.joyOrder.name+' (~'+left2+' min)</div>';
+      }
+      html += '<div style="font-size:11px;color:var(--muted);margin-top:8px">Usa las pestañas del PC para navegar.</div>';
+    } else if (pcPage === 'news') {
+      html += '<div class="action-row"><button onclick="refreshNews()">Actualizar feed</button></div>';
+      (P.pcNews||[]).forEach(function(n){
+        html += '<div class="pc-news-item"><div class="n-title">'+n.title+'</div><div class="n-date">'+n.date+'</div><div class="n-body">'+n.body+'</div></div>';
+      });
+    } else if (pcPage === 'mail') {
+      html += '<div class="action-row"><button class="ghost" onclick="markMessagesRead()">Marcar leídos</button></div>';
+      if (!(P.pcMessages||[]).length) html += '<div class="empty-state">Bandeja vacía.</div>';
+      (P.pcMessages||[]).forEach(function(m){
+        html += '<div class="pc-msg-item'+(m.read?'':' unread')+'"><div class="m-from">De: <b>'+m.from+'</b> · '+m.date+'</div><div class="m-text">'+m.text+'</div></div>';
+      });
+    } else if (pcPage === 'biz') {
+      html += '<p style="font-size:12px;color:var(--muted)">Micro-negocios desde el piso. Riesgo tuyo.</p>';
+      PC_BIZ.forEach(function(b){
+        html += '<div class="craft-recipe"><div class="item-name">'+b.name+'</div><div class="item-meta">'+b.desc+'</div>'+
+          '<div class="item-actions" style="margin-top:8px"><button class="gold" onclick="doPcBiz(\''+b.id+'\')">Pagar '+b.cost+' €$</button></div></div>';
+      });
+    } else if (pcPage === 'food') {
+      if (P.foodOrder) {
+        var leftf = Math.max(0, P.foodOrder.readyAt - totalMinutes());
+        html += '<div class="order-status">En camino: '+P.foodOrder.name+' · queda ~'+leftf+' min. Explora o descansa para avanzar el tiempo.</div>';
+      }
+      FOOD_MENU.forEach(function(f){
+        html += '<div class="craft-recipe"><div class="item-name">'+f.name+'</div><div class="item-meta">'+f.desc+' · +'+f.heal+' HP · espera '+f.wait+' min</div>'+
+          '<div class="item-actions" style="margin-top:8px"><button class="green" onclick="orderFood(\''+f.id+'\')">Pedir · '+f.cost+' €$</button></div></div>';
+      });
+    } else if (pcPage === 'joy') {
+      if (P.joyOrder) {
+        var leftj = Math.max(0, P.joyOrder.readyAt - totalMinutes());
+        html += '<div class="order-status">Cita: '+P.joyOrder.name+' · ~'+leftj+' min restantes.</div>';
+      }
+      JOYTOY_MENU.forEach(function(j){
+        html += '<div class="craft-recipe"><div class="item-name">'+j.name+'</div><div class="item-meta">'+j.desc+' · +'+j.heal+' HP · '+j.wait+' min</div>'+
+          '<div class="item-actions" style="margin-top:8px"><button class="magenta" onclick="orderJoytoy(\''+j.id+'\')">Contratar · '+j.cost+' €$</button></div></div>';
+      });
+    }
+    html += '</div>';
+    main.innerHTML = html;
     return;
   }
 
   if (aptSub === 'rest') {
-    html += '<div class="loc-flavor">Tu apartamento en Watson. Las persianas apenas tapan los neones. Aquí descansas y guardas tu equipo.</div>'+
+    html += '<div class="loc-flavor">Tu apartamento en Watson. Persianas, neones y un PC zumbando. Aquí haces vida: descansas, pides comida, lees el net.</div>'+
       '<div class="action-row"><button class="green" onclick="restAtApartment()">Descansar (HP máximo)</button></div>'+
-      '<div style="font-size:12px;color:var(--muted);margin-top:8px">Gratis. Avanza varias horas del día.</div>'+
-      '<div class="section-label">Tu estado</div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-top:8px">Avanza varias horas. Los pedidos del PC también progresan.</div>';
+    if (P.foodOrder) html += '<div class="order-status">Comida en camino: '+P.foodOrder.name+'</div>';
+    if (P.joyOrder) html += '<div class="order-status">Cita pendiente: '+P.joyOrder.name+'</div>';
+    html += '<div class="section-label">Tu estado</div>'+
       '<div class="char-stats">'+
       '<div class="char-stat"><div class="label">Nombre</div><div class="value" style="font-size:16px">'+P.name+'</div></div>'+
       '<div class="char-stat"><div class="label">Nivel</div><div class="value">'+P.lvl+'</div></div>'+
       '<div class="char-stat"><div class="label">Daño</div><div class="value">'+getWeaponDmg()+'</div></div>'+
-      '<div class="char-stat"><div class="label">Defensa</div><div class="value">'+getArmorDef()+'</div></div></div>';
+      '<div class="char-stat"><div class="label">Defensa</div><div class="value">'+getArmorDef()+'</div></div></div>'+
+      '<div style="font-size:11px;color:var(--muted);margin-top:10px">Fecha: '+formatDate()+' · '+String(P.hours).padStart(2,'0')+':'+String(P.minutes).padStart(2,'0')+'</div>';
   } else {
     var stFilters = [{id:'all',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Atuendos'},{id:'consumable',label:'Curativos'},{id:'cyberware',label:'Chrome'}];
     if (!window._storageSub) window._storageSub = 'all';
@@ -1839,31 +2408,39 @@ function renderApt(main) {
   main.innerHTML = html;
 }
 
+
 function renderShop(main) {
   var sections = [
     {id:'weapon', title:'Armas', ids:SHOP_WEAPONS},
     {id:'armor', title:'Atuendos', ids:SHOP_ARMOR},
     {id:'consumable', title:'Curativos', ids:SHOP_CONSUMABLES},
+    {id:'ammo', title:'Munición', ids:[210,211,212,213]},
+    {id:'cyberware', title:'Chrome', ids:CHROME_SHOP},
+    {id:'quickhack', title:'Hacks', ids:[300,301,302,303,304,305,306]}
   ];
   var html = '<div style="font-size:13px;color:var(--gold);margin-bottom:4px;font-weight:700">✦ Mercado negro</div>'+
-    '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Hierro, ropa y estimulantes. Sin preguntas.</div>';
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Hierro, ropa, balas y estimulantes. Sin preguntas.</div>';
   html += '<div class="subtabs">'+sections.map(function(s){
     return '<button class="'+(shopSub===s.id?'active':'')+'" onclick="shopSub=\''+s.id+'\';render()">'+s.title+'</button>';
   }).join('')+'</div><div class="item-list">';
   var sec = sections.find(function(s){ return s.id === shopSub; }) || sections[0];
   sec.ids.forEach(function(id){
-    var def = itemById(id);
+    var def = itemById(id); if (!def) return;
+    var buyQty = def.type==='ammo' ? 20 : 1;
+    var price = def.value * buyQty;
     var chips = def.type==='weapon'
       ? '<span class="stat-chip">DMG '+def.dmg+'</span><span class="stat-chip">'+def.subtype+'</span>'
       : def.type==='armor'
       ? '<span class="stat-chip">DEF '+def.def+'</span>'
+      : def.type==='ammo'
+      ? '<span class="stat-chip">×'+buyQty+'</span>'
       : '<span class="stat-chip">+'+def.heal+' HP</span>';
-    chips += '<span class="stat-chip">'+def.value+' €$</span>';
+    chips += '<span class="stat-chip">'+price+' €$</span>';
     html += '<div class="item-card"><div class="item-card-top"><div>'+
-      '<div class="item-name '+rarityClass(def.rarity)+'">'+def.name+'</div>'+
+      '<div class="item-name '+rarityClass(def.rarity)+'">'+def.name+(buyQty>1?' ×'+buyQty:'')+'</div>'+
       '<div class="item-meta">'+def.desc+'</div>'+
       '<div class="item-stats-row">'+chips+'</div></div></div>'+
-      '<div class="item-actions"><button class="gold" onclick="buyItem('+id+')">Comprar</button></div></div>';
+      '<div class="item-actions"><button class="gold" onclick="buyItem('+id+','+buyQty+')">Comprar</button></div></div>';
   });
   html += '</div>';
   main.innerHTML = html;
@@ -1893,12 +2470,17 @@ document.getElementById('btn-load').addEventListener('click', function(){
 });
 document.getElementById('btn-reset').addEventListener('click', function(){
   if (confirm('¿Reiniciar partida?')) {
-    localStorage.removeItem('nightcity_v008');
-    localStorage.removeItem('nightcity_v007');
-    localStorage.removeItem('nightcity_v006');
-    localStorage.removeItem('nightcity_v005');
+    ['nightcity_v012','nightcity_v010','nightcity_v009','nightcity_v008','nightcity_v007','nightcity_v006','nightcity_v005'].forEach(function(k){ localStorage.removeItem(k); });
     location.reload();
   }
+});
+document.getElementById('btn-theme').addEventListener('click', function(){
+  sfxClick();
+  document.documentElement.classList.toggle('theme-afterlife');
+  var on = document.documentElement.classList.contains('theme-afterlife');
+  try { localStorage.setItem('nightcity_theme', on ? 'afterlife' : 'default'); } catch(e){}
+  this.textContent = on ? 'Desactivar' : 'Activar';
+  logMsg(on ? 'Tema Afterlife activado.' : 'Tema estándar restaurado.', 'sys');
 });
 document.getElementById('btn-start').addEventListener('click', function(){
   var name = (document.getElementById('input-name').value.trim() || 'Runner').slice(0,16);
@@ -1917,6 +2499,12 @@ document.getElementById('btn-loot-leave').addEventListener('click', function(){ 
 
 (function init(){
   try { var v = localStorage.getItem('nightcity_vol'); if (v!==null) sfxVol = parseFloat(v); } catch(e){}
+  try {
+    if (localStorage.getItem('nightcity_theme') === 'afterlife') {
+      document.documentElement.classList.add('theme-afterlife');
+      var tb = document.getElementById('btn-theme'); if (tb) tb.textContent = 'Desactivar';
+    }
+  } catch(e){}
   var verEl = document.getElementById('settings-version');
   if (verEl) verEl.textContent = VERSION;
   var hasSave = load();
