@@ -17,21 +17,21 @@
 :root {
   --bg: #050508; --panel: #0b0d14; --line: #00e8ff; --txt: #e8eefc;
   --accent: #00e8ff; --magenta: #ff2bd6; --danger: #ff3355; --gold: #ffc933;
-  --bar-bg: #101018; --purple: #b14dff; --green: #3dde7a; --muted: #6a7a94;
+  --bar-bg: #101018; --purple: #b14dff; --green: #3dde7a; --muted: #9aacc4;
   --card: #0a101a; --border: #1a2838; --glow: rgba(0,232,255,0.35);
 }
 /* Afterlife theme */
 html.theme-afterlife {
   --bg: #0a0610; --panel: #120a18; --line: #ff2bd6; --txt: #f0e8ff;
   --accent: #ff2bd6; --magenta: #c44dff; --danger: #ff4466; --gold: #ffc933;
-  --bar-bg: #180e22; --purple: #d070ff; --green: #5dffb0; --muted: #8a7098;
+  --bar-bg: #180e22; --purple: #d070ff; --green: #5dffb0; --muted: #b09abc;
   --card: #140c1c; --border: #2a1838; --glow: rgba(255,43,214,0.4);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
   width: 100%; height: 100%; margin: 0;
   background: var(--bg); color: var(--txt);
-  font-family: 'Consolas', 'Courier New', 'Segoe UI', monospace;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   overflow: hidden; -webkit-user-select: none; user-select: none;
   letter-spacing: 0.2px;
 }
@@ -71,6 +71,9 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
 .hud-title {
   margin: 0; font-size: 15px; letter-spacing: 3px; font-weight: 800;
   color: var(--accent); text-shadow: 0 0 12px var(--glow);
+}
+.hud {
+  border-color: #1e3048;
 }
 .hud-loc {
   font-size: 10px; color: var(--muted); margin-bottom: 6px; position: relative; z-index: 1;
@@ -376,18 +379,18 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
 }
 .body-svg { width: 100%; height: 100%; }
 .chrome-slot {
-  position: absolute; width: 72px; min-height: 44px;
-  background: rgba(10,20,32,0.92); border: 1.5px solid var(--border);
+  position: absolute; width: 78px; min-height: 48px;
+  background: rgba(8,14,24,0.96); border: 1.5px solid #2a3a50;
   border-radius: 8px; padding: 5px 6px; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; transition: border-color .15s, box-shadow .15s;
-  font-size: 9px; color: var(--muted);
+  font-size: 10px; color: #c8d8f0;
 }
 .chrome-slot.filled {
   border-color: var(--accent); box-shadow: 0 0 10px rgba(0,232,255,0.25); color: var(--accent);
 }
-.chrome-slot .slot-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px; }
-.chrome-slot .slot-item { font-size: 10px; font-weight: 700; line-height: 1.2; color: inherit; }
+.chrome-slot .slot-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #8a9bb0; margin-bottom: 2px; }
+.chrome-slot .slot-item { font-size: 11px; font-weight: 700; line-height: 1.2; color: #e8eefc; }
 .chrome-slot.empty:active, .chrome-slot:active { border-color: var(--magenta); }
 .slot-eyes { top: 4px; left: 50%; transform: translateX(-50%); width: 88px; }
 .slot-hand-l { top: 110px; left: 0; width: 70px; }
@@ -396,21 +399,76 @@ button.ghost { background: transparent; border-color: var(--border); color: var(
 .slot-leg-l { top: 200px; left: 8px; width: 70px; }
 .slot-leg-r { top: 200px; right: 8px; width: 70px; }
 .slot-chip { top: 270px; left: 50%; transform: translateX(-50%); width: 100px; border-color: var(--magenta); }
+.equip-layout { display: flex; flex-direction: column; gap: 10px; }
+.equip-weapon-bar {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  cursor: pointer;
+}
+.equip-weapon-bar:active { border-color: var(--accent); }
+.equip-weapon-bar .ew-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+.equip-weapon-bar .ew-name { font-size: 14px; font-weight: 700; color: var(--accent); }
+.equip-weapon-bar .ew-stats { font-size: 12px; color: var(--gold); }
 .equip-body {
-  position: relative; width: 200px; height: 280px; margin: 0 auto 12px;
+  position: relative; width: 240px; height: 360px; margin: 0 auto;
+  background:
+    radial-gradient(ellipse 40% 30% at 50% 18%, rgba(0,232,255,0.08), transparent),
+    radial-gradient(ellipse at center, rgba(0,30,50,0.5) 0%, #060a10 75%);
+  border: 1px solid #1e3048; border-radius: 14px;
+  box-shadow: inset 0 0 40px rgba(0,232,255,0.06);
 }
+.equip-body .body-svg {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 58%; height: 88%;
+  pointer-events: none; z-index: 1;
+}
+.chrome-silhouette-wrap { display: flex; justify-content: center; margin: 8px 0; }
+.chrome-body {
+  position: relative; width: 240px; height: 360px;
+  background:
+    radial-gradient(ellipse 40% 30% at 50% 18%, rgba(0,232,255,0.08), transparent),
+    radial-gradient(ellipse at center, rgba(0,30,50,0.5) 0%, #060a10 75%);
+  border: 1px solid #1e3048; border-radius: 14px;
+  box-shadow: inset 0 0 40px rgba(0,232,255,0.06);
+}
+.chrome-body .body-svg {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -48%);
+  width: 55%; height: 82%;
+  pointer-events: none; z-index: 1;
+}
+.hud-extra {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;
+  position: relative; z-index: 1;
+}
+.hud-chip {
+  font-size: 10px; padding: 3px 8px; border-radius: 6px;
+  background: rgba(0,20,30,0.8); border: 1px solid var(--border);
+  color: var(--muted); font-weight: 600;
+}
+.hud-chip b { color: var(--accent); }
+.hud-chip.warn { border-color: #5a2030; color: var(--danger); }
+.hud-chip.ok { border-color: rgba(61,222,122,0.35); color: var(--green); }
+
 .equip-slot {
-  position: absolute; width: 80px; min-height: 48px;
-  background: rgba(10,20,32,0.92); border: 1.5px solid var(--border);
-  border-radius: 8px; padding: 6px; cursor: pointer; text-align: center;
-  font-size: 10px; color: var(--muted);
+  position: absolute; width: 86px; min-height: 52px;
+  background: rgba(8,14,24,0.95); border: 1.5px solid #2a3a50;
+  border-radius: 10px; padding: 7px 6px; cursor: pointer; text-align: center;
+  font-size: 11px; color: #c0d0e8; box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 2;
 }
-.equip-slot.filled { border-color: var(--accent); color: var(--accent); }
-.equip-slot .es-title { font-size: 8px; text-transform: uppercase; color: var(--muted); }
-.equip-slot .es-name { font-size: 11px; font-weight: 700; margin-top: 2px; }
-.es-weapon { top: 100px; left: 0; }
-.es-armor { top: 60px; left: 50%; transform: translateX(-50%); width: 90px; }
-.es-hack { top: 200px; left: 50%; transform: translateX(-50%); width: 100px; border-color: var(--magenta); }
+.equip-slot.filled { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 12px rgba(0,232,255,0.2); }
+.equip-slot .es-title { font-size: 9px; text-transform: uppercase; color: #8a9bb0; letter-spacing: 0.4px; }
+.equip-slot .es-name { font-size: 11px; font-weight: 700; margin-top: 3px; line-height: 1.2; color: inherit; }
+.es-hat { top: 8px; left: 50%; transform: translateX(-50%); width: 92px; }
+.es-glasses { top: 68px; left: 50%; transform: translateX(-50%); width: 92px; }
+.es-torso { top: 130px; left: 50%; transform: translateX(-50%); width: 100px; }
+.es-pants { top: 200px; left: 50%; transform: translateX(-50%); width: 92px; }
+.es-shoes { top: 270px; left: 50%; transform: translateX(-50%); width: 92px; }
+.item-name { color: var(--txt); }
+.item-meta { color: #a0b4cc; }
+.section-label { color: var(--accent); }
 
 .chrome-shop-list { display: flex; flex-direction: column; gap: 8px; }
 .chrome-card {
@@ -507,6 +565,43 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
   .tabs button { font-size: 7px; padding: 9px 0; }
   .chrome-body { width: 180px; height: 300px; }
 }
+
+.style-btn {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 8px; color: var(--txt); font-size: 12px; font-weight: 700; text-align: left;
+}
+.style-btn.active { border-color: var(--accent); box-shadow: 0 0 12px var(--glow); color: var(--accent); }
+.map-visual {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+}
+.map-district {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 10px; cursor: pointer; position: relative; overflow: hidden;
+  min-height: 88px;
+}
+.map-district.current { border-color: var(--accent); box-shadow: 0 0 14px var(--glow); }
+.map-district .map-ico { font-size: 22px; margin-bottom: 4px; }
+.map-district .map-name { font-weight: 800; font-size: 13px; color: var(--accent); }
+.map-district .map-meta { font-size: 10px; color: var(--muted); margin-top: 4px; }
+.diary-entry {
+  background: var(--card); border-left: 3px solid var(--magenta);
+  padding: 10px 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0;
+}
+.diary-entry .d-title { font-weight: 700; color: var(--accent); font-size: 13px; }
+.diary-entry .d-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stat-compare { font-size: 12px; margin: 8px 0; padding: 8px; background: #0a121c; border-radius: 8px; }
+.stat-compare .up { color: var(--green); }
+.stat-compare .down { color: var(--danger); }
+.stat-compare .same { color: var(--muted); }
+.weight-bar { margin: 8px 0 4px; }
+.weight-bar .wb-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.weight-bar .wb-track { height: 8px; background: #101820; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.weight-bar .wb-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width .2s; }
+.weight-bar.over .wb-fill { background: linear-gradient(90deg, var(--danger), #ff8800); }
+.weight-bar.over .wb-label { color: var(--danger); }
+.combat-hints { font-size: 10px; color: var(--muted); margin-top: 8px; letter-spacing: 0.3px; }
+.cred-badge { color: var(--gold); font-weight: 700; }
+
 </style>
 </head>
 <body>
@@ -540,6 +635,7 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
       <div class="hud-stat"><div class="lbl">◆ SP</div><div class="val green" id="st-sp">0</div></div>
     </div>
     <div class="hud-ammo" id="hud-ammo">Munición: —</div>
+    <div class="hud-extra" id="hud-extra"></div>
   </div>
   <div id="screen-flash" class="screen-flash"></div>
 
@@ -571,6 +667,14 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
     <h2>◈ NIGHT CITY</h2>
     <p style="font-size:13px;color:#90a0b8;margin:0 0 8px">Las calles no perdonan. ¿Cómo te llamas, choom?</p>
     <input type="text" id="input-name" class="name-input" maxlength="16" placeholder="Tu nombre..." autocomplete="off">
+    <p style="font-size:12px;color:var(--muted);margin:12px 0 6px;text-align:left">Estilo de runner</p>
+    <div id="style-picks" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left;margin-bottom:12px">
+      <button type="button" class="style-btn active" data-style="streetkid" onclick="pickStyle(this)">🏙 Streetkid<br><span style="font-size:10px;color:var(--muted)">+5% eddies</span></button>
+      <button type="button" class="style-btn" data-style="nomad" onclick="pickStyle(this)">🏜 Nomad<br><span style="font-size:10px;color:var(--muted)">+10 Max HP</span></button>
+      <button type="button" class="style-btn" data-style="corpo" onclick="pickStyle(this)">🏢 Corpo<br><span style="font-size:10px;color:var(--muted)">−5% precios</span></button>
+      <button type="button" class="style-btn" data-style="netrunner" onclick="pickStyle(this)">💻 Netrunner<br><span style="font-size:10px;color:var(--muted)">+4 hack DMG</span></button>
+      <button type="button" class="style-btn" data-style="solo" onclick="pickStyle(this)" style="grid-column:1/-1">⚔ Solo<br><span style="font-size:10px;color:var(--muted)">+2 DMG</span></button>
+    </div>
     <button id="btn-start" style="width:100%;padding:14px;font-size:14px;font-weight:700">ENTRAR EN LA CIUDAD</button>
   </div>
 </div>
@@ -588,7 +692,7 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
       <button class="danger" id="btn-reset">🗑 Reiniciar partida</button>
       <button class="ghost" id="btn-close-settings">Cerrar</button>
     </div>
-    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.1.2</span></div>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.1.5</span></div>
   </div>
 </div>
 
@@ -610,7 +714,31 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
 </div>
 
 <script>
-const VERSION = '0.1.2';
+const VERSION = '0.1.5';
+
+const RUNNER_STYLES = {
+  streetkid: { name:'Streetkid', eddiesPct:0.05, maxHp:0, priceMod:0, hackDmg:0, dmg:0 },
+  nomad: { name:'Nomad', eddiesPct:0, maxHp:10, priceMod:0, hackDmg:0, dmg:0 },
+  corpo: { name:'Corpo', eddiesPct:0, maxHp:0, priceMod:-0.05, hackDmg:0, dmg:0 },
+  netrunner: { name:'Netrunner', eddiesPct:0, maxHp:0, priceMod:0, hackDmg:4, dmg:0 },
+  solo: { name:'Solo', eddiesPct:0, maxHp:0, priceMod:0, hackDmg:0, dmg:2 },
+};
+const WEATHER_TYPES = [
+  { id:'clear', name:'Despejado', icon:'☀️', exploreMod:0, lootMod:0 },
+  { id:'rain', name:'Lluvia', icon:'🌧', exploreMod:0.05, lootMod:0.05 },
+  { id:'smog', name:'Smog', icon:'🌫', exploreMod:0.08, lootMod:-0.05 },
+  { id:'storm', name:'Tormenta', icon:'⛈', exploreMod:0.12, lootMod:0.08 },
+  { id:'neon', name:'Noche neón', icon:'🌃', exploreMod:0.03, lootMod:0.1 },
+];
+const DISTRICT_ICON = {
+  watson:'⛩', westbrook:'🏯', citycenter:'🏙', heywood:'🚗', pacifica:'🏖', santo:'🏭'
+};
+let selectedStyle = 'streetkid';
+function pickStyle(btn) {
+  selectedStyle = btn.dataset.style;
+  document.querySelectorAll('.style-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
+}
+
 let audioCtx = null, sfxVol = 0.7;
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -802,24 +930,24 @@ const ITEMS = [
   { id:20, name:"Comrade's Hammer", type:'weapon', subtype:'tech', dmg:35, weight:5.5, value:1100, rarity:'epic', desc:'Revólver tech.' },
   { id:22, name:'Breakthrough', type:'weapon', subtype:'tech', dmg:19, weight:3.0, value:650, rarity:'rare', desc:'Rifle tech. Atraviesa paredes.' },
   { id:23, name:'Psalm 11:6', type:'weapon', subtype:'smart', dmg:18, weight:3.5, value:700, rarity:'epic', desc:'Smart rifle.' },
-  { id:10, name:'Chaqueta de cuero', type:'armor', def:3, weight:2, value:60, rarity:'common', desc:'Protección básica de calle.' },
-  { id:11, name:'Armadura táctica ligera', type:'armor', def:6, weight:4, value:150, rarity:'uncommon', desc:'Placas balísticas discretas.' },
-  { id:12, name:'Traje de netrunner', type:'armor', def:4, weight:1.5, value:200, rarity:'uncommon', desc:'Ligero, blindaje EMI.' },
-  { id:13, name:'Chaqueta Valentino', type:'armor', def:8, weight:5, value:280, rarity:'rare', desc:'Estilo y kevlar.' },
-  { id:14, name:'Chaleco 6th Street', type:'armor', def:7, weight:4.5, value:220, rarity:'uncommon', desc:'Patriota y resistente.' },
-  { id:15, name:'Armadura Scav', type:'armor', def:5, weight:3.5, value:120, rarity:'common', desc:'Piezas robadas y soldadas.' },
-  { id:16, name:'Exoesqueleto Maelstrom', type:'armor', def:12, weight:8, value:500, rarity:'rare', desc:'Cromado y amenazante.' },
-  { id:17, name:'Kimono Tyger Claw', type:'armor', def:9, weight:3, value:380, rarity:'rare', desc:'Tradición y kevlar.' },
-  { id:18, name:'Traje Arasaka Executive', type:'armor', def:14, weight:6, value:700, rarity:'epic', desc:'Tecnología corpo de élite.' },
-  { id:19, name:'Armadura de Animal', type:'armor', def:16, weight:10, value:650, rarity:'epic', desc:'Hecha para absorber golpes.' },
-  { id:21, name:'Poncho Voodoo', type:'armor', def:10, weight:3.5, value:420, rarity:'rare', desc:'Protección espiritual y balística.' },
-  { id:24, name:'Chaqueta de nomad', type:'armor', def:11, weight:5.5, value:400, rarity:'rare', desc:'Polvo del Badlands.' },
-  { id:27, name:'Traje NetWatch', type:'armor', def:15, weight:4, value:900, rarity:'epic', desc:'Blindaje digital y físico.' },
-  { id:45, name:'Camiseta y jeans', type:'armor', def:1, weight:1, value:20, rarity:'common', desc:'Lo mínimo.' },
-  { id:46, name:'Abrigo de fixer', type:'armor', def:8, weight:4, value:350, rarity:'uncommon', desc:'Bolsillos profundos.' },
-  { id:47, name:'Armadura polyero', type:'armor', def:18, weight:9, value:800, rarity:'epic', desc:'Polímero militar.' },
-  { id:48, name:'Traje de solista', type:'armor', def:20, weight:7, value:1200, rarity:'legendary', desc:'Uniforme de quien sobrevive.' },
-  { id:49, name:'Samurai jacket', type:'armor', def:13, weight:3.5, value:950, rarity:'legendary', desc:'La chaqueta de la banda.' },
+  { id:10, name:'Chaqueta de cuero', type:'armor', clothSlot:'torso', def:3, weight:2, value:60, rarity:'common', desc:'Protección básica de calle.' },
+  { id:11, name:'Armadura táctica ligera', type:'armor', clothSlot:'torso', def:6, weight:4, value:150, rarity:'uncommon', desc:'Placas balísticas discretas.' },
+  { id:12, name:'Traje de netrunner', type:'armor', clothSlot:'torso', def:4, weight:1.5, value:200, rarity:'uncommon', desc:'Ligero, blindaje EMI.' },
+  { id:13, name:'Chaqueta Valentino', type:'armor', clothSlot:'torso', def:8, weight:5, value:280, rarity:'rare', desc:'Estilo y kevlar.' },
+  { id:14, name:'Chaleco 6th Street', type:'armor', clothSlot:'torso', def:7, weight:4.5, value:220, rarity:'uncommon', desc:'Patriota y resistente.' },
+  { id:15, name:'Armadura Scav', type:'armor', clothSlot:'torso', def:5, weight:3.5, value:120, rarity:'common', desc:'Piezas robadas y soldadas.' },
+  { id:16, name:'Exoesqueleto Maelstrom', type:'armor', clothSlot:'torso', def:12, weight:8, value:500, rarity:'rare', desc:'Cromado y amenazante.' },
+  { id:17, name:'Kimono Tyger Claw', type:'armor', clothSlot:'torso', def:9, weight:3, value:380, rarity:'rare', desc:'Tradición y kevlar.' },
+  { id:18, name:'Traje Arasaka Executive', type:'armor', clothSlot:'torso', def:14, weight:6, value:700, rarity:'epic', desc:'Tecnología corpo de élite.' },
+  { id:19, name:'Armadura de Animal', type:'armor', clothSlot:'torso', def:16, weight:10, value:650, rarity:'epic', desc:'Hecha para absorber golpes.' },
+  { id:21, name:'Poncho Voodoo', type:'armor', clothSlot:'torso', def:10, weight:3.5, value:420, rarity:'rare', desc:'Protección espiritual y balística.' },
+  { id:24, name:'Chaqueta de nomad', type:'armor', clothSlot:'torso', def:11, weight:5.5, value:400, rarity:'rare', desc:'Polvo del Badlands.' },
+  { id:27, name:'Traje NetWatch', type:'armor', clothSlot:'torso', def:15, weight:4, value:900, rarity:'epic', desc:'Blindaje digital y físico.' },
+  { id:45, name:'Camiseta y jeans', type:'armor', clothSlot:'torso', def:1, weight:1, value:20, rarity:'common', desc:'Lo mínimo.' },
+  { id:46, name:'Abrigo de fixer', type:'armor', clothSlot:'torso', def:8, weight:4, value:350, rarity:'uncommon', desc:'Bolsillos profundos.' },
+  { id:47, name:'Armadura polyero', type:'armor', clothSlot:'torso', def:18, weight:9, value:800, rarity:'epic', desc:'Polímero militar.' },
+  { id:48, name:'Traje de solista', type:'armor', clothSlot:'torso', def:20, weight:7, value:1200, rarity:'legendary', desc:'Uniforme de quien sobrevive.' },
+  { id:49, name:'Samurai jacket', type:'armor', clothSlot:'torso', def:13, weight:3.5, value:950, rarity:'legendary', desc:'La chaqueta de la banda.' },
   { id:50, name:'MaxDoc Mk.1', type:'consumable', heal:25, weight:0.2, value:40, rarity:'common', desc:'Primeros auxilios.', stackable:true },
   { id:51, name:'MaxDoc Mk.2', type:'consumable', heal:40, weight:0.2, value:70, rarity:'common', desc:'Curación media.', stackable:true },
   { id:52, name:'MaxDoc Mk.3', type:'consumable', heal:55, weight:0.2, value:100, rarity:'uncommon', desc:'Curación avanzada.', stackable:true },
@@ -831,6 +959,23 @@ const ITEMS = [
   { id:58, name:'Injector de combate', type:'consumable', heal:45, weight:0.25, value:90, rarity:'uncommon', desc:'Uso militar.', stackable:true },
   { id:59, name:'Medkit de campo', type:'consumable', heal:80, weight:0.8, value:180, rarity:'rare', desc:'Kit completo.', stackable:true },
   { id:60, name:'SuperMaxDoc', type:'consumable', heal:100, weight:0.3, value:250, rarity:'epic', desc:'Cura total.', stackable:true },
+
+  /* Ropa por ranura */
+  { id:70, name:'Gorra Bolsa de basura', type:'armor', clothSlot:'hat', def:1, weight:0.2, value:40, rarity:'common', desc:'Gorra gastada de Watson.' },
+  { id:71, name:'Gorra Tyger', type:'armor', clothSlot:'hat', def:2, weight:0.25, value:90, rarity:'uncommon', desc:'Gorra con bordado de garras.' },
+  { id:72, name:'Casco táctico ligero', type:'armor', clothSlot:'hat', def:4, weight:0.8, value:220, rarity:'rare', desc:'Protección craneal urbana.' },
+  { id:73, name:'Gafas de sol baratas', type:'armor', clothSlot:'glasses', def:0, weight:0.1, value:30, rarity:'common', desc:'Estilo, poca protección.' },
+  { id:74, name:'Gafas aviator', type:'armor', clothSlot:'glasses', def:1, weight:0.1, value:80, rarity:'uncommon', desc:'Clásicas de fixer.' },
+  { id:75, name:'Visor táctico', type:'armor', clothSlot:'glasses', def:2, weight:0.2, value:180, rarity:'rare', desc:'HUD barato de mercado negro.' },
+  { id:76, name:'Vaqueros rotos', type:'armor', clothSlot:'pants', def:2, weight:0.6, value:50, rarity:'common', desc:'Siguen siendo pantalones.' },
+  { id:77, name:'Pantalón cargo', type:'armor', clothSlot:'pants', def:3, weight:0.7, value:110, rarity:'uncommon', desc:'Bolsillos para todo.' },
+  { id:78, name:'Pantalón táctico', type:'armor', clothSlot:'pants', def:5, weight:0.9, value:260, rarity:'rare', desc:'Kevelar barato cosido dentro.' },
+  { id:79, name:'Pantalón de solista', type:'armor', clothSlot:'pants', def:7, weight:0.8, value:500, rarity:'epic', desc:'Flexible y resistente.' },
+  { id:80, name:'Zapatillas gastadas', type:'armor', clothSlot:'shoes', def:1, weight:0.5, value:35, rarity:'common', desc:'Suela casi transparente.' },
+  { id:81, name:'Botas de trabajo', type:'armor', clothSlot:'shoes', def:2, weight:1.0, value:90, rarity:'uncommon', desc:'Buenas para callejones.' },
+  { id:82, name:'Botas tácticas', type:'armor', clothSlot:'shoes', def:4, weight:1.2, value:200, rarity:'rare', desc:'Agarre y punta reforzada.' },
+  { id:83, name:'Botas Arasaka', type:'armor', clothSlot:'shoes', def:5, weight:1.1, value:420, rarity:'epic', desc:'Corp chic.' },
+
   { id:100, name:'Óptica Kiroshi Mk.1', type:'cyberware', slot:'eyes', weight:0.1, value:400, rarity:'rare', desc:'+2 DMG.', bonusDmg:2, ability:'Precisión +2' },
   { id:101, name:'Óptica Kiroshi Mk.2', type:'cyberware', slot:'eyes', weight:0.1, value:800, rarity:'epic', desc:'+4 DMG.', bonusDmg:4, ability:'Precisión +4' },
   { id:102, name:'Óptica Kiroshi Legendary', type:'cyberware', slot:'eyes', weight:0.1, value:1800, rarity:'legendary', desc:'+6 DMG.', bonusDmg:6, ability:'Precisión +6' },
@@ -957,6 +1102,40 @@ const CHROME_SLOTS = [
   { id:'chip', name:'Chip / Deck', cls:'slot-chip', accept:['chip'] },
 ];
 const SLOT_LABEL = { eyes:'Ojos', hand_l:'Mano izq.', hand_r:'Mano der.', chest:'Pecho', leg_l:'Pierna izq.', leg_r:'Pierna der.', chip:'Chip' };
+
+/* Silueta humana compartida (equipo + chrome) */
+const BODY_SVG = '<svg class="body-svg" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+  '<defs>'+
+  '<linearGradient id="skinGlow" x1="0" y1="0" x2="0" y2="1">'+
+  '<stop offset="0%" stop-color="rgba(0,232,255,0.25)"/>'+
+  '<stop offset="100%" stop-color="rgba(0,100,140,0.12)"/>'+
+  '</linearGradient>'+
+  '<filter id="softGlow"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'+
+  '</defs>'+
+  /* head */+
+  '<ellipse cx="60" cy="28" rx="18" ry="22" fill="url(#skinGlow)" stroke="rgba(0,232,255,0.65)" stroke-width="1.8" filter="url(#softGlow)"/>'+
+  /* neck */+
+  '<path d="M52 48 L52 58 L68 58 L68 48" fill="rgba(0,180,220,0.15)" stroke="rgba(0,232,255,0.45)" stroke-width="1.2"/>'+
+  /* torso */+
+  '<path d="M38 58 L28 70 L32 118 L48 128 L72 128 L88 118 L92 70 L82 58 Z" fill="url(#skinGlow)" stroke="rgba(0,232,255,0.55)" stroke-width="1.6" filter="url(#softGlow)"/>'+
+  /* shoulders hint */+
+  '<circle cx="30" cy="68" r="7" fill="rgba(0,200,240,0.12)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  '<circle cx="90" cy="68" r="7" fill="rgba(0,200,240,0.12)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  /* left arm */+
+  '<path d="M30 74 L18 110 L22 112 L36 78 Z" fill="rgba(0,180,220,0.14)" stroke="rgba(0,232,255,0.45)" stroke-width="1.3"/>'+
+  '<path d="M18 110 L14 138 L20 140 L24 112 Z" fill="rgba(0,180,220,0.12)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  /* right arm */+
+  '<path d="M90 74 L102 110 L98 112 L84 78 Z" fill="rgba(0,180,220,0.14)" stroke="rgba(0,232,255,0.45)" stroke-width="1.3"/>'+
+  '<path d="M102 110 L106 138 L100 140 L96 112 Z" fill="rgba(0,180,220,0.12)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  /* hips */+
+  '<path d="M48 128 L42 138 L78 138 L72 128 Z" fill="rgba(0,160,200,0.15)" stroke="rgba(0,232,255,0.45)" stroke-width="1.2"/>'+
+  /* left leg */+
+  '<path d="M44 138 L38 180 L44 182 L52 140 Z" fill="rgba(0,180,220,0.13)" stroke="rgba(0,232,255,0.45)" stroke-width="1.3"/>'+
+  '<path d="M38 180 L34 208 L46 210 L46 182 Z" fill="rgba(0,180,220,0.11)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  /* right leg */+
+  '<path d="M76 138 L82 180 L76 182 L68 140 Z" fill="rgba(0,180,220,0.13)" stroke="rgba(0,232,255,0.45)" stroke-width="1.3"/>'+
+  '<path d="M82 180 L86 208 L74 210 L74 182 Z" fill="rgba(0,180,220,0.11)" stroke="rgba(0,232,255,0.4)" stroke-width="1.2"/>'+
+  '</svg>';
 const CHROME_SHOP = [100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,305,306];
 
 const QUESTS_POOL = [
@@ -980,8 +1159,8 @@ const FIXERS = [
 
 let P = {
   name:'', hp:100, maxHp:100, lvl:1, xp:0, maxXp:100, eddies:500, district:'watson',
-  inv:[{id:1,qty:1},{id:10,qty:1},{id:50,qty:3},{id:53,qty:1},{id:210,qty:40},{id:211,qty:25},{id:300,qty:1},{id:305,qty:1}],
-  storage:[], equipped:{ weapon:1, armor:10, cyberware:{} },
+  inv:[{id:1,qty:1},{id:10,qty:1},{id:76,qty:1},{id:80,qty:1},{id:70,qty:1},{id:73,qty:1},{id:50,qty:3},{id:53,qty:1},{id:210,qty:40},{id:211,qty:25},{id:300,qty:1},{id:305,qty:1}],
+  storage:[], equipped:{ weapon:1, hat:70, glasses:73, torso:10, pants:76, shoes:80, cyberware:{}, hack:null },
   ownedChrome:[],
   activeQuests:[], completedQuests:[],
   skillPoints:0, unlockedSkills:[],
@@ -990,11 +1169,53 @@ let P = {
   kills:{}, hours:20, minutes:47, day:14, month:10, year:2077,
   combat:null, log:[], named:false,
   pcMessages:[], pcNews:[], foodOrder:null, joyOrder:null,
+  streetCred:0, style:'streetkid', diary:[], weather:null,
 };
 let currentTab = 'map', invSub = 'bag', aptSub = 'rest', craftSub = 'scrap', skillCat = 'body';
 let shopSub = 'weapon', selectedFixer = 'regina', pcPage = 'home';
 
 function itemById(id) { return ITEMS.find(function(i){ return i.id === id; }); }
+
+function invWeight() {
+  var w = 0;
+  (P.inv||[]).forEach(function(s){
+    var d = itemById(s.id); if (d) w += (d.weight||0.1) * (s.qty||1);
+  });
+  return Math.round(w * 10) / 10;
+}
+function maxWeight() {
+  return 25 + (P.lvl||1) * 2 + Math.floor(getSkillBonus('maxHp')/20) + (P.style==='nomad'?5:0);
+}
+function isOverweight() { return invWeight() > maxWeight(); }
+function priceMod() {
+  var mod = 0;
+  if (P.style === 'corpo') mod -= 0.05;
+  var sc = P.streetCred || 0;
+  if (sc >= 50) mod -= 0.15;
+  else if (sc >= 30) mod -= 0.10;
+  else if (sc >= 15) mod -= 0.05;
+  return mod;
+}
+function itemPrice(def, qty) {
+  qty = qty || 1;
+  return Math.max(1, Math.floor(def.value * qty * (1 + priceMod())));
+}
+function addStreetCred(n) {
+  P.streetCred = Math.min(100, (P.streetCred||0) + n);
+}
+function rollWeather(districtId) {
+  var pool = WEATHER_TYPES.slice();
+  if (districtId === 'pacifica') pool = pool.concat([WEATHER_TYPES[1], WEATHER_TYPES[3]]);
+  if (districtId === 'citycenter') pool = pool.concat([WEATHER_TYPES[0], WEATHER_TYPES[4]]);
+  if (districtId === 'santo' || districtId === 'watson') pool = pool.concat([WEATHER_TYPES[2]]);
+  P.weather = pool[Math.floor(Math.random()*pool.length)];
+  return P.weather;
+}
+function styleBonus(key) {
+  var s = RUNNER_STYLES[P.style||'streetkid'];
+  return s ? (s[key]||0) : 0;
+}
+
 
 /* Inventory: always merge by id (fixes duplicate equipped display) */
 function invQty(id) {
@@ -1039,10 +1260,14 @@ function removeItem(id, qty, fromStorage) {
   return true;
 }
 function availableQty(id) {
-  /* qty in inv that is not the equipped weapon/armor instance */
   var q = invQty(id);
-  if (P.equipped.weapon === id || P.equipped.armor === id) q = Math.max(0, q - 1);
-  return q;
+  var eq = 0;
+  if (P.equipped.weapon === id) eq++;
+  ['hat','glasses','torso','pants','shoes'].forEach(function(s){ if (P.equipped[s]===id) eq++; });
+  if (P.equipped.armor === id && P.equipped.torso !== id) eq++;
+  Object.keys(P.equipped.cyberware||{}).forEach(function(s){ if (P.equipped.cyberware[s]===id) eq++; });
+  if (P.equipped.hack === id) eq++;
+  return Math.max(0, q - eq);
 }
 
 function getSkillBonus(key) {
@@ -1063,10 +1288,21 @@ function getWeaponDmg() {
     if (c && c.bonusDmg) dmg += c.bonusDmg;
   });
   dmg += getSkillBonus('dmg');
+  dmg += styleBonus('dmg');
   return dmg;
 }
 function getArmorDef() {
-  var a = itemById(P.equipped.armor); var def = a ? a.def : 0;
+  var def = 0;
+  ['hat','glasses','torso','pants','shoes'].forEach(function(slot){
+    var id = P.equipped[slot];
+    var a = id ? itemById(id) : null;
+    if (a && a.def) def += a.def;
+  });
+  /* legacy armor field */
+  if (P.equipped.armor && !P.equipped.torso) {
+    var leg = itemById(P.equipped.armor);
+    if (leg && leg.def) def += leg.def;
+  }
   Object.keys(P.equipped.cyberware || {}).forEach(function(slot){
     var c = itemById(P.equipped.cyberware[slot]);
     if (c && c.bonusDef) def += c.bonusDef;
@@ -1087,16 +1323,16 @@ function installedChromeCount() {
   return Object.keys(P.equipped.cyberware || {}).filter(function(k){ return P.equipped.cyberware[k]; }).length;
 }
 function recalcMaxHp() {
-  P.maxHp = 100 + (P.lvl - 1) * 12 + getCyberHpBonus();
+  P.maxHp = 100 + (P.lvl - 1) * 12 + getCyberHpBonus() + styleBonus('maxHp');
   if (P.hp > P.maxHp) P.hp = P.maxHp;
 }
 
 function save() {
-  try { localStorage.setItem('nightcity_v012', JSON.stringify(P)); return true; } catch(e){ return false; }
+  try { localStorage.setItem('nightcity_v015', JSON.stringify(P)); return true; } catch(e){ return false; }
 }
 function load() {
   try {
-    var raw = localStorage.getItem('nightcity_v012') || localStorage.getItem('nightcity_v010') || localStorage.getItem('nightcity_v009') || localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
+    var raw = localStorage.getItem('nightcity_v015') || localStorage.getItem('nightcity_v010') || localStorage.getItem('nightcity_v009') || localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
     if (!raw) return false;
     var data = JSON.parse(raw);
     Object.assign(P, data);
@@ -1117,6 +1353,10 @@ function load() {
     if (!P.pcNews) P.pcNews = [];
     if (P.foodOrder === undefined) P.foodOrder = null;
     if (P.joyOrder === undefined) P.joyOrder = null;
+    if (P.streetCred === undefined) P.streetCred = 0;
+    if (!P.style) P.style = 'streetkid';
+    if (!P.diary) P.diary = [];
+    if (P.weather === undefined) P.weather = null;
     if (Array.isArray(P.equipped.cyberware)) {
       var map = {};
       P.equipped.cyberware.forEach(function(cid){
@@ -1135,6 +1375,8 @@ function load() {
     if (cw.arms) { cw.hand_l = cw.hand_l || cw.arms; delete cw.arms; }
     if (cw.legs) { cw.leg_l = cw.leg_l || cw.legs; delete cw.legs; }
     if (!P.equipped.hack) P.equipped.hack = null;
+    if (P.equipped.armor && !P.equipped.torso) P.equipped.torso = P.equipped.armor;
+    ['hat','glasses','pants','shoes'].forEach(function(s){ if (P.equipped[s]===undefined) P.equipped[s]=null; });
     normalizeInv();
     recalcMaxHp();
     return true;
@@ -1167,6 +1409,7 @@ function updateStats() {
   document.getElementById('st-time').textContent = formatDate()+' · '+timeStr;
   updateHudLoc();
   updateHudAmmo();
+  updateHudExtra();
 }
 function updateHudLoc() {
   var el = document.getElementById('hud-loc'); if (!el) return;
@@ -1189,6 +1432,26 @@ function updateHudAmmo() {
   var a = AMMO_TYPES[key];
   var q = invQty(a.id);
   el.innerHTML = '<span class="'+(q<=0?'ammo-empty':'')+'">'+a.name+': <b>'+q+'</b></span><span style="color:var(--muted)">'+(w?w.name:'')+'</span>';
+}
+
+function updateHudExtra() {
+  var el = document.getElementById('hud-extra'); if (!el) return;
+  var gigs = (P.activeQuests||[]).filter(function(q){ return !q.done; }).length;
+  var chromeN = Object.keys(P.equipped.cyberware||{}).filter(function(k){ return P.equipped.cyberware[k]; }).length;
+  var arm = getArmorDef();
+  var parts = [];
+  parts.push('<span class="hud-chip">★ Cred <b>'+(P.streetCred||0)+'</b></span>');
+  parts.push('<span class="hud-chip">🛡 ARM <b>'+arm+'</b></span>');
+  parts.push('<span class="hud-chip">⚙ Chrome <b>'+chromeN+'/7</b></span>');
+  if (P.weather) parts.push('<span class="hud-chip">'+P.weather.icon+' '+P.weather.name+'</span>');
+  if (gigs > 0) parts.push('<span class="hud-chip ok">📋 Gigs <b>'+gigs+'</b></span>');
+  if (isOverweight()) parts.push('<span class="hud-chip warn">Peso</span>');
+  if (P.foodOrder) parts.push('<span class="hud-chip ok">🍜</span>');
+  if (P.joyOrder) parts.push('<span class="hud-chip ok">♥</span>');
+  var w = itemById(P.equipped.weapon);
+  var key = ammoKeyForSubtype(w ? w.subtype : 'melee');
+  if (key && invQty(AMMO_TYPES[key].id) <= 5) parts.push('<span class="hud-chip warn">Munición baja</span>');
+  el.innerHTML = parts.join('');
 }
 function screenFlash(type) {
   var el = document.getElementById('screen-flash'); if (!el) return;
@@ -1400,6 +1663,11 @@ function onKill(enemy) {
   });
 }
 function completeQuest(q) {
+  if (!P.diary) P.diary = [];
+  P.diary.unshift({ title:q.title, date:formatDate(), eddies:(q.reward&&q.reward.eddies)||0, xp:(q.reward&&q.reward.xp)||0 });
+  if (P.diary.length > 30) P.diary.pop();
+  addStreetCred(3);
+
   if (q.done) return; q.done = true;
   if (P.completedQuests.indexOf(q.id) < 0) P.completedQuests.push(q.id);
   var r = q.reward;
@@ -1441,6 +1709,7 @@ function combatAttack() {
   }
   sfxWeapon(subtype);
   var base = getWeaponDmg() + Math.floor(Math.random()*5) - 1;
+  if (isOverweight()) base = Math.max(1, base - 2);
   var crit = Math.random() < 0.12;
   var dmg = Math.max(1, crit ? Math.floor(base * 1.6) : base);
   e.hp -= dmg;
@@ -1475,7 +1744,7 @@ function combatHack() {
   var h = itemById(P.equipped.hack);
   if (!h || h.type !== 'quickhack') { sfxError(); logMsg('No tienes un quickhack equipado.', 'combat'); return; }
   var e = P.combat.enemy;
-  var dmg = (h.hackDmg||10) + getSkillBonus('hackDmg') + Math.floor(Math.random()*4);
+  var dmg = (h.hackDmg||10) + getSkillBonus('hackDmg') + styleBonus('hackDmg') + Math.floor(Math.random()*4);
   var deckBonus = itemById(deck);
   if (deckBonus && deckBonus.bonusDmg) dmg += deckBonus.bonusDmg;
   e.hp -= dmg;
@@ -1513,10 +1782,10 @@ function endCombat(won) {
   if (won) {
     sfxWin(); screenFlash('loot'); logMsg('Has derrotado a '+e.name+'.', 'combat');
     var gain = e.eddies[0] + Math.floor(Math.random()*(e.eddies[1]-e.eddies[0]+1));
-    var eddiesPct = getSkillBonus('eddiesPct');
+    var eddiesPct = getSkillBonus('eddiesPct') + styleBonus('eddiesPct');
     gain = Math.floor(gain * (1 + eddiesPct));
     addXp(12 + e.level*4);
-    onKill(e); advanceTime(8);
+    onKill(e); addStreetCred(e.legendary?2:1); advanceTime(8);
     /* Build loot menu — player chooses what to take */
     var lootItems = (e.droppedLoot || []).slice();
     P.pendingLoot = { eddies: gain, items: lootItems, enemyName: e.name };
@@ -1596,7 +1865,8 @@ function explore() {
   var sub = dist && dist.subs && P.viewSub ? dist.subs.find(function(s){ return s.id === P.viewSub; }) : null;
   var danger = sub ? sub.danger : (dist ? dist.danger : 2);
   var faction = sub ? sub.faction : null;
-  var roll = Math.random(), dangerMod = (danger||2)*0.07;
+  var wx = P.weather || WEATHER_TYPES[0];
+  var roll = Math.random(), dangerMod = (danger||2)*0.07 + (wx.exploreMod||0);
   if (roll < 0.38 + dangerMod) {
     var maxLvl = Math.min(P.lvl+3, 15);
     var pool = ENEMIES.filter(function(e){
@@ -1609,10 +1879,10 @@ function explore() {
     if ((danger >= 5 && Math.random() < 0.14) || Math.random() < 0.06)
       enemy = ENEMIES.find(function(e){ return e.legendary; }) || enemy;
     startCombat(enemy);
-  } else if (roll < 0.52) {
+  } else if (roll < 0.52 + (wx.lootMod||0)*0.5) {
     var gain = 12 + Math.floor(Math.random()*45) + danger*6;
     changeEddies(gain); sfxLoot(); logMsg('Encuentras '+gain+' €$.', 'loot'); save(); render();
-  } else if (roll < 0.68) {
+  } else if (roll < 0.68 + (wx.lootMod||0)*0.4) {
     var pool = ITEMS.filter(function(i){ return (i.rarity==='common'||i.rarity==='uncommon') && (i.type==='consumable'||i.type==='weapon'||i.type==='armor'||i.type==='ammo'); });
     var it = pool[Math.floor(Math.random()*pool.length)];
     addItem(it.id, it.type==='ammo' ? 10+Math.floor(Math.random()*15) : 1); sfxLoot(); logMsg('Encuentras: '+it.name, 'loot'); save(); render();
@@ -1641,7 +1911,8 @@ function enterDistrict(id) {
   P.district = id; P.mapView = 'district'; P.viewDistrict = id; P.viewSub = null;
   advanceTime(15 + Math.floor(Math.random()*15));
   var d = DISTRICTS.find(function(x){ return x.id === id; });
-  logMsg('Entras en '+d.name+'.', 'sys');
+  var wx = rollWeather(id);
+  logMsg('Entras en '+d.name+'. Clima: '+wx.icon+' '+wx.name+'.', 'sys');
   save(); render();
 }
 function enterSub(subId) {
@@ -1682,8 +1953,17 @@ function equipItem(id) {
   if (invQty(id) <= 0) { sfxError(); return; }
   sfxClick();
   if (def.type === 'weapon') P.equipped.weapon = id;
-  else if (def.type === 'armor') P.equipped.armor = id;
+  else if (def.type === 'armor') {
+    var slot = def.clothSlot || 'torso';
+    P.equipped[slot] = id;
+    if (slot === 'torso') P.equipped.armor = id; /* legacy */
+  }
   save(); render();
+}
+function unequipCloth(slot) {
+  P.equipped[slot] = null;
+  if (slot === 'torso') P.equipped.armor = null;
+  sfxClick(); save(); render();
 }
 function unequipWeapon() {
   P.equipped.weapon = null; sfxClick(); save(); render();
@@ -1800,8 +2080,11 @@ var SHOP_CONSUMABLES = [50,51,52,53,54,55,56,57,58];
 function buyItem(id, qty) {
   qty = qty || 1;
   var def = itemById(id); if (!def) return;
-  var price = def.value * qty;
+  var price = itemPrice(def, qty);
   if (P.eddies < price) { sfxError(); logMsg('No tienes suficientes eddies.', 'sys'); return; }
+  if (def.weight && invWeight() + def.weight * qty > maxWeight() + 5) {
+    sfxError(); logMsg('Mochila demasiado pesada.', 'sys'); return;
+  }
   changeEddies(-price); addItem(id, qty); sfxBuy();
   logMsg('Comprado: '+def.name+(qty>1?' ×'+qty:'')+' (−'+price+' €$)', 'loot');
   save(); render();
@@ -1811,7 +2094,7 @@ function sellItem(id, fromStorage) {
   var qty = fromStorage ? storageQty(id) : invQty(id);
   if (qty <= 0) return;
   if (!fromStorage) {
-    if ((P.equipped.weapon === id || P.equipped.armor === id) && qty <= 1) {
+    if ((P.equipped.weapon === id || P.equipped.armor === id || P.equipped.hat===id || P.equipped.glasses===id || P.equipped.torso===id || P.equipped.pants===id || P.equipped.shoes===id) && qty <= 1) {
       sfxError(); logMsg('Desequipa antes de vender tu única unidad.', 'sys'); return;
     }
   }
@@ -1822,7 +2105,7 @@ function sellItem(id, fromStorage) {
 function moveToStorage(id) {
   var avail = availableQty(id);
   if (avail <= 0) {
-    if (P.equipped.weapon === id || P.equipped.armor === id) {
+    if (P.equipped.weapon === id || P.equipped.hat===id || P.equipped.glasses===id || P.equipped.torso===id || P.equipped.pants===id || P.equipped.shoes===id || P.equipped.armor === id) {
       sfxError(); logMsg('Desequipa antes de guardar (o necesitas otra unidad).', 'sys');
     }
     return;
@@ -1955,8 +2238,20 @@ function renderCombat(main) {
     '<div class="combat-actions"><button onclick="combatAttack()" '+(P.combat.turn!=='player'?'disabled':'')+'>ATACAR</button>'+
     '<button onclick="combatHeal()" '+(P.combat.turn!=='player'?'disabled':'')+'>CURAR</button>'+
     '<button class="danger" onclick="combatFlee()" '+(P.combat.turn!=='player'?'disabled':'')+'>HUIR</button>'+
-    '<button class="magenta" onclick="combatHack()" '+(P.combat.turn!=='player'?'disabled':'')+'>HACK</button></div></div>';
+    '<button class="magenta" onclick="combatHack()" '+(P.combat.turn!=='player'?'disabled':'')+'>HACK</button></div>'+
+    '<div class="combat-hints">[1] Atacar · [2] Curar · [3] Hack · [4] Huir'+(isOverweight()?' · ⚠ Sobrecarga':'')+'</div></div>';
 }
+
+document.addEventListener('keydown', function(ev){
+  if (!P.combat || P.combat.turn !== 'player') return;
+  if (ev.target && (ev.target.tagName==='INPUT'||ev.target.tagName==='TEXTAREA')) return;
+  var k = ev.key;
+  if (k==='1') { ev.preventDefault(); combatAttack(); }
+  else if (k==='2') { ev.preventDefault(); combatHeal(); }
+  else if (k==='3') { ev.preventDefault(); combatHack(); }
+  else if (k==='4') { ev.preventDefault(); combatFlee(); }
+});
+
 
 function renderMap(main) {
   if (P.mapView === 'sub' && P.viewDistrict && P.viewSub) {
@@ -1964,9 +2259,10 @@ function renderMap(main) {
     var sub = dist.subs.find(function(s){ return s.id===P.viewSub; });
     var dClass = sub.danger<=2?'danger-low':sub.danger<=3?'danger-mid':'danger-high';
     var dLabel = sub.danger<=2?'Bajo':sub.danger<=3?'Medio':'Alto';
+    var wx = P.weather || WEATHER_TYPES[0];
     main.innerHTML = '<div class="loc-header"><span class="loc-title">'+sub.name+'</span>'+
       '<span class="district-danger '+dClass+'">Peligro: '+dLabel+'</span></div>'+
-      '<div class="sub-faction">Facción: '+sub.faction+'</div>'+
+      '<div class="sub-faction">Facción: '+sub.faction+' · '+wx.icon+' '+wx.name+'</div>'+
       '<div class="loc-flavor" style="margin-top:8px">'+sub.flavor+'</div>'+
       '<div class="loc-flavor" style="font-size:11px">Distrito: '+dist.name+'</div>'+
       '<div class="action-row">'+
@@ -1992,64 +2288,69 @@ function renderMap(main) {
       }).join('');
     return;
   }
-  /* City overview */
+  /* City overview — visual map */
+  var wx = P.weather;
   main.innerHTML = '<div class="loc-header"><span class="loc-title">Night City</span></div>'+
-    '<div class="loc-flavor">Elige un distrito para entrar. Cada zona tiene subdistritos controlados por facciones.</div>'+
-    '<div class="section-label">Distritos</div><div class="district-grid">'+
+    '<div class="loc-flavor">Mapa de la metrópolis. Elige un distrito.'+(wx?' Clima reciente: '+wx.icon+' '+wx.name+'.':'')+'</div>'+
+    '<div class="map-visual">'+
     DISTRICTS.map(function(d){
-      return '<div class="district-card '+(d.id===P.district?'current':'')+'" onclick="enterDistrict(\''+d.id+'\')">'+
-        '<div class="district-name">'+d.name+'</div><div class="district-desc">'+d.desc+'</div>'+
-        '<div class="district-danger '+(d.danger<=2?'danger-low':d.danger<=3?'danger-mid':'danger-high')+'">'+('▲'.repeat(d.danger))+'</div></div>';
+      var ico = DISTRICT_ICON[d.id]||'📍';
+      return '<div class="map-district '+(d.id===P.district?'current':'')+'" onclick="enterDistrict(\''+d.id+'\')">'+
+        '<div class="map-ico">'+ico+'</div>'+
+        '<div class="map-name">'+d.name+'</div>'+
+        '<div class="map-meta">'+d.desc+'</div>'+
+        '<div class="district-danger '+(d.danger<=2?'danger-low':d.danger<=3?'danger-mid':'danger-high')+'" style="margin-top:6px">'+('▲'.repeat(d.danger))+'</div></div>';
     }).join('')+'</div>';
 }
 
 function renderInv(main) {
-  var top = [
-    {id:'bag',label:'Mochila'},
-    {id:'gear',label:'Equipo'}
-  ];
+  var top = [{id:'bag',label:'Mochila'},{id:'gear',label:'Equipo'}];
   var html = '<div class="subtabs">'+top.map(function(f){
-    return '<button class="'+(invSub===f.id||(invSub!=='gear'&&f.id==='bag'&&invSub!=='gear')?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
-  }).join('')+'</div>';
-
-  /* fix active state */
-  html = '<div class="subtabs">'+top.map(function(f){
     var active = (invSub==='gear' && f.id==='gear') || (invSub!=='gear' && f.id==='bag');
     return '<button class="'+(active?'active':'')+'" onclick="invSub=\''+f.id+'\';render()">'+f.label+'</button>';
   }).join('')+'</div>';
 
   if (invSub === 'gear') {
-    var w = itemById(P.equipped.weapon), a = itemById(P.equipped.armor), h = itemById(P.equipped.hack);
-    html += '<div class="equip-body">'+
-      '<svg class="body-svg" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">'+
-      '<ellipse cx="50" cy="18" rx="14" ry="16" fill="none" stroke="rgba(0,232,255,0.35)" stroke-width="1.5"/>'+
-      '<path d="M50 34 L50 85 M50 50 L28 70 M50 50 L72 70 M50 85 L32 130 M50 85 L68 130" fill="none" stroke="rgba(0,232,255,0.3)" stroke-width="2" stroke-linecap="round"/>'+
-      '</svg>'+
-      '<div class="equip-slot es-weapon '+(w?'filled':'')+'" onclick="openEquipModal(\'weapon\')"><div class="es-title">Arma</div><div class="es-name">'+(w?w.name:'—')+'</div></div>'+
-      '<div class="equip-slot es-armor '+(a?'filled':'')+'" onclick="openEquipModal(\'armor\')"><div class="es-title">Atuendo</div><div class="es-name">'+(a?a.name:'—')+'</div></div>'+
-      '<div class="equip-slot es-hack '+(h?'filled':'')+'" onclick="openEquipModal(\'hack\')"><div class="es-title">Hack</div><div class="es-name">'+(h?h.name:'—')+'</div></div>'+
-      '</div>';
-    html += '<p style="font-size:12px;color:var(--muted);text-align:center">Toca un slot para equipar desde la mochila.</p>';
-    html += '<div class="item-stats-row" style="justify-content:center;margin-top:8px">'+
-      '<span class="stat-chip">DMG '+getWeaponDmg()+'</span>'+
-      '<span class="stat-chip">ARM '+getArmorDef()+'</span>'+
-      '<span class="stat-chip">HP '+P.maxHp+'</span></div>';
+    var w = itemById(P.equipped.weapon);
+    var slots = [
+      {id:'hat', label:'Gorra', cls:'es-hat'},
+      {id:'glasses', label:'Gafas', cls:'es-glasses'},
+      {id:'torso', label:'Torso', cls:'es-torso'},
+      {id:'pants', label:'Pantalón', cls:'es-pants'},
+      {id:'shoes', label:'Calzado', cls:'es-shoes'}
+    ];
+    html += '<div class="equip-layout">';
+    html += '<div class="equip-weapon-bar" onclick="openEquipModal(\'weapon\')">'+
+      '<div><div class="ew-label">Arma equipada</div><div class="ew-name">'+(w?w.name:'— Ninguna —')+'</div></div>'+
+      '<div class="ew-stats">'+(w?('DMG '+w.dmg+' · '+w.subtype):'Toca para equipar')+'</div></div>';
+    html += '<div class="equip-body">' + BODY_SVG;
+    slots.forEach(function(s){
+      var it = itemById(P.equipped[s.id]);
+      html += '<div class="equip-slot '+s.cls+(it?' filled':'')+'" onclick="openEquipModal(\''+s.id+'\')">'+
+        '<div class="es-title">'+s.label+'</div>'+
+        '<div class="es-name">'+(it?it.name:'— vacío —')+'</div>'+(it&&it.def!=null?'<div class="es-title" style="margin-top:2px;color:var(--gold)">DEF '+it.def+'</div>':'')+'</div>';
+    });
+    html += '</div>';
+    html += '<div class="item-stats-row" style="justify-content:center">'+
+      '<span class="stat-chip">ARM total '+getArmorDef()+'</span>'+
+      '<span class="stat-chip">DMG '+getWeaponDmg()+'</span></div>';
+    html += '<p style="font-size:12px;color:var(--muted);text-align:center;margin:6px 0 0">Solo ropa en la silueta. El arma va arriba. Los hacks van en Chrome → Chip.</p>';
+    html += '</div>';
     main.innerHTML = html;
     return;
   }
 
-  /* Mochila */
-  if (invSub === 'bag' || invSub === 'all' || !invSub) invSub = 'bag';
+  if (!window._invFilter) window._invFilter = 'all';
   var filters = [
-    {id:'bag',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Atuendos'},
+    {id:'all',label:'Todo'},{id:'weapon',label:'Armas'},{id:'armor',label:'Ropa'},
     {id:'consumable',label:'Curativos'},{id:'ammo',label:'Munición'},
     {id:'cyberware',label:'Chrome'},{id:'quickhack',label:'Hacks'},{id:'component',label:'Comp.'}
   ];
-  /* bag uses invFilter */
-  if (!window._invFilter) window._invFilter = 'all';
+  var ow = isOverweight();
+  html += '<div class="weight-bar'+(ow?' over':'')+'"><div class="wb-label"><span>Peso mochila</span><span>'+invWeight()+' / '+maxWeight()+' kg'+(ow?' ⚠':'')+'</span></div>'+
+    '<div class="wb-track"><div class="wb-fill" style="width:'+Math.min(100,invWeight()/maxWeight()*100)+'%"></div></div></div>';
   html += '<div class="subtabs">'+filters.map(function(f){
-    var fid = f.id==='bag'?'all':f.id;
-    return '<button class="'+(_invFilter===fid?'active':'')+'" onclick="_invFilter=\''+fid+'\';render()">'+f.label+'</button>';
+    return '<button class="'+(_invFilter===f.id?'active':'')+'" onclick=\"_invFilter=\''+f.id+'\';render()\">'+f.label+'</button>';
   }).join('')+'</div><div class="item-list">';
 
   normalizeInv();
@@ -2060,14 +2361,15 @@ function renderInv(main) {
   else filtered.forEach(function(slot){
     var id=slot.id, qty=slot.qty, def=slot.def;
     var isEqW = P.equipped.weapon === id;
-    var isEqA = P.equipped.armor === id;
+    var clothSlot = def.clothSlot;
+    var isEqA = clothSlot && P.equipped[clothSlot] === id;
     var isEqC = Object.keys(P.equipped.cyberware||{}).some(function(s){ return P.equipped.cyberware[s]===id; });
     var isEqH = P.equipped.hack === id;
     var isEq = isEqW || isEqA || isEqC || isEqH;
     var eqTag = isEq ? '<span class="equipped-tag">EQUIPADO</span>' : '';
     var chips = '';
     if (def.type==='weapon') chips = '<span class="stat-chip">DMG '+def.dmg+'</span><span class="stat-chip">'+def.subtype+'</span>';
-    else if (def.type==='armor') chips = '<span class="stat-chip">DEF '+def.def+'</span>';
+    else if (def.type==='armor') chips = '<span class="stat-chip">DEF '+(def.def||0)+'</span><span class="stat-chip">'+(def.clothSlot||'torso')+'</span>';
     else if (def.type==='consumable') chips = '<span class="stat-chip">+'+def.heal+' HP</span>';
     else if (def.type==='cyberware'||def.type==='quickhack') chips = '<span class="stat-chip">'+(def.ability||def.slot)+'</span>';
     else if (def.type==='component') chips = '<span class="stat-chip">Desguace</span>';
@@ -2078,12 +2380,12 @@ function renderInv(main) {
       actions = isEqW ? '<button class="ghost" onclick="unequipWeapon()">Desequipar</button>' : '<button onclick="equipItem('+id+')">Equipar</button>';
       actions += '<button class="danger" onclick="disassembleItem('+id+')">Desguazar</button>';
     } else if (def.type==='armor') {
-      actions = isEqA ? '<button class="ghost" onclick="unequipArmor()">Desequipar</button>' : '<button onclick="equipItem('+id+')">Equipar</button>';
+      actions = isEqA ? '<button class="ghost" onclick="unequipCloth(\''+(clothSlot||'torso')+'\')">Desequipar</button>' : '<button onclick="equipItem('+id+')">Equipar</button>';
       actions += '<button class="danger" onclick="disassembleItem('+id+')">Desguazar</button>';
     } else if (def.type==='cyberware') {
       actions = '<button onclick="installChrome('+id+')">Instalar</button>';
     } else if (def.type==='quickhack') {
-      actions = isEqH ? '<button class="ghost" onclick="P.equipped.hack=null;save();render()">Quitar</button>' : '<button class="magenta" onclick="installChrome('+id+',\\\'chip\\\')">Equipar hack</button>';
+      actions = isEqH ? '<button class="ghost" onclick="P.equipped.hack=null;save();render()">Quitar</button>' : '<button class="magenta" onclick="installChrome('+id+',\'chip\')">Equipar hack</button>';
     } else if (def.type==='consumable') {
       actions = '<button class="green" onclick="useItem('+id+')">Usar</button>';
     }
@@ -2106,40 +2408,59 @@ function renderInv(main) {
 function openEquipModal(kind) {
   sfxClick();
   var body = document.getElementById('modal-slot-body');
-  var title = kind==='weapon'?'Arma':kind==='armor'?'Atuendo':'Quickhack';
-  var html = '<h3>'+title+'</h3>';
+  var labels = { weapon:'Arma', hat:'Gorra', glasses:'Gafas', torso:'Torso', pants:'Pantalón', shoes:'Calzado' };
+  var html = '<h3>'+(labels[kind]||kind)+'</h3>';
+  var curDmg = getWeaponDmg(), curArm = getArmorDef();
   var list = P.inv.map(function(s){ return itemById(s.id); }).filter(function(d){
     if (!d) return false;
     if (kind==='weapon') return d.type==='weapon';
-    if (kind==='armor') return d.type==='armor';
-    return d.type==='quickhack';
+    return d.type==='armor' && (d.clothSlot||'torso') === kind;
   });
-  if (!list.length) html += '<div class="empty-state">No tienes nada de este tipo en la mochila.</div>';
+  if (!list.length) html += '<div class="empty-state">No tienes nada para esta ranura en la mochila.</div>';
   list.forEach(function(def){
-    var eq = (kind==='weapon'&&P.equipped.weapon===def.id)||(kind==='armor'&&P.equipped.armor===def.id)||(kind==='hack'&&P.equipped.hack===def.id);
+    var eq = kind==='weapon' ? P.equipped.weapon===def.id : P.equipped[kind]===def.id;
     html += '<div class="item-card"><div class="item-name '+rarityClass(def.rarity)+'">'+def.name+'</div>'+
-      '<div class="item-meta">'+def.desc+'</div><div class="item-actions">';
+      '<div class="item-meta">'+def.desc+(def.def!=null?' · DEF '+def.def:'')+(def.dmg!=null?' · DMG '+def.dmg:'')+'</div>';
+    if (!eq) {
+      var cmp = '';
+      if (kind==='weapon' && def.dmg!=null) {
+        var oldW = itemById(P.equipped.weapon);
+        var delta = def.dmg - (oldW?oldW.dmg:0);
+        cmp = '<div class="stat-compare">DMG base: '+(oldW?oldW.dmg:0)+' → '+def.dmg+
+          ' <span class="'+(delta>0?'up':delta<0?'down':'same')+'">'+(delta>0?'+':'')+delta+'</span></div>';
+      } else if (kind!=='weapon') {
+        var oldA = itemById(P.equipped[kind]);
+        var oldDef = oldA && oldA.def ? oldA.def : 0;
+        var newDef = def.def||0;
+        var deltaA = newDef - oldDef;
+        var projArm = curArm - oldDef + newDef;
+        cmp = '<div class="stat-compare">DEF pieza: '+oldDef+' → '+newDef+
+          ' <span class="'+(deltaA>0?'up':deltaA<0?'down':'same')+'">'+(deltaA>0?'+':'')+deltaA+'</span>'+
+          ' · ARM total ≈ '+projArm+'</div>';
+      }
+      html += cmp;
+    }
+    html += '<div class="item-actions">';
     if (eq) html += '<span class="equipped-tag">EQUIPADO</span>';
-    else if (kind==='hack') html += '<button class="magenta" onclick="installChrome('+def.id+',\'chip\')">Equipar</button>';
     else html += '<button onclick="equipItem('+def.id+');document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Equipar</button>';
     html += '</div></div>';
   });
-  if (kind==='weapon' && P.equipped.weapon) html += '<button class="ghost" style="width:100%" onclick="unequipWeapon();document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar arma</button>';
-  if (kind==='armor' && P.equipped.armor) html += '<button class="ghost" style="width:100%" onclick="unequipArmor();document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar atuendo</button>';
-  if (kind==='hack' && P.equipped.hack) html += '<button class="ghost" style="width:100%" onclick="P.equipped.hack=null;save();document.getElementById(\'modal-slot\').classList.add(\'hidden\');render()">Quitar hack</button>';
+  if (kind==='weapon' && P.equipped.weapon) {
+    html += '<button class="ghost" style="width:100%" onclick="unequipWeapon();document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar arma</button>';
+  } else if (kind!=='weapon' && P.equipped[kind]) {
+    html += '<button class="ghost" style="width:100%" onclick="unequipCloth(\''+kind+'\');document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Desequipar</button>';
+  }
   html += '<button class="ghost" style="width:100%;margin-top:8px" onclick="document.getElementById(\'modal-slot\').classList.add(\'hidden\')">Cerrar</button>';
   body.innerHTML = html;
   document.getElementById('modal-slot').classList.remove('hidden');
 }
 
+
 function renderChrome(main) {
   var html = '<div class="section-label">Chrome instalado</div>';
   html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Toca un punto del cuerpo para instalar. Compra chrome en el <b>Mercado</b>.</p>';
   html += '<div class="chrome-silhouette-wrap"><div class="chrome-body">';
-  html += '<svg class="body-svg" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">'+
-    '<ellipse cx="50" cy="18" rx="14" ry="16" fill="none" stroke="rgba(0,232,255,0.35)" stroke-width="1.5"/>'+
-    '<path d="M50 34 L50 85 M50 50 L28 70 M50 50 L72 70 M50 85 L32 130 M50 85 L68 130" fill="none" stroke="rgba(0,232,255,0.3)" stroke-width="2" stroke-linecap="round"/>'+
-    '</svg>';
+  html += BODY_SVG;
   CHROME_SLOTS.forEach(function(s){
     var cid = (P.equipped.cyberware||{})[s.id];
     var c = cid ? itemById(cid) : null;
@@ -2412,7 +2733,8 @@ function renderApt(main) {
 function renderShop(main) {
   var sections = [
     {id:'weapon', title:'Armas', ids:SHOP_WEAPONS},
-    {id:'armor', title:'Atuendos', ids:SHOP_ARMOR},
+    {id:'armor', title:'Torso', ids:SHOP_ARMOR},
+    {id:'clothes', title:'Ropa', ids:[70,71,72,73,74,75,76,77,78,79,80,81,82,83]},
     {id:'consumable', title:'Curativos', ids:SHOP_CONSUMABLES},
     {id:'ammo', title:'Munición', ids:[210,211,212,213]},
     {id:'cyberware', title:'Chrome', ids:CHROME_SHOP},
@@ -2427,7 +2749,7 @@ function renderShop(main) {
   sec.ids.forEach(function(id){
     var def = itemById(id); if (!def) return;
     var buyQty = def.type==='ammo' ? 20 : 1;
-    var price = def.value * buyQty;
+    var price = itemPrice(def, buyQty);
     var chips = def.type==='weapon'
       ? '<span class="stat-chip">DMG '+def.dmg+'</span><span class="stat-chip">'+def.subtype+'</span>'
       : def.type==='armor'
@@ -2470,7 +2792,7 @@ document.getElementById('btn-load').addEventListener('click', function(){
 });
 document.getElementById('btn-reset').addEventListener('click', function(){
   if (confirm('¿Reiniciar partida?')) {
-    ['nightcity_v012','nightcity_v010','nightcity_v009','nightcity_v008','nightcity_v007','nightcity_v006','nightcity_v005'].forEach(function(k){ localStorage.removeItem(k); });
+    ['nightcity_v015','nightcity_v010','nightcity_v009','nightcity_v008','nightcity_v007','nightcity_v006','nightcity_v005'].forEach(function(k){ localStorage.removeItem(k); });
     location.reload();
   }
 });
@@ -2487,9 +2809,13 @@ document.getElementById('btn-start').addEventListener('click', function(){
   P.name = name; P.named = true; P.activeQuests = []; P.completedQuests = [];
   P.skillPoints = 0; P.unlockedSkills = [];
   P.mapView = 'city'; P.viewDistrict = null; P.viewSub = null;
+  P.style = selectedStyle || 'streetkid';
+  P.streetCred = 0; P.diary = [];
+  recalcMaxHp(); P.hp = P.maxHp;
   sfxLevel();
   document.getElementById('modal-name').classList.add('hidden');
-  logMsg('Bienvenido a Night City, '+P.name+'.', 'sys');
+  var st = RUNNER_STYLES[P.style];
+  logMsg('Bienvenido a Night City, '+P.name+' · '+((st&&st.name)||'Runner')+'.', 'sys');
   logMsg('Entra en un distrito, elige subdistrito y explora. Cuidado con la munición.', 'sys');
   save(); render();
 });
