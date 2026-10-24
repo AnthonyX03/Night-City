@@ -563,7 +563,8 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
   .hud-stat .val { font-size: 12px; }
   .tabs { grid-template-columns: repeat(8, 1fr); }
   .tabs button { font-size: 7px; padding: 9px 0; }
-  .chrome-body { width: 180px; height: 300px; }
+  .chrome-body { width: min(260px, 90vw); height: 400px; }
+  .slot-chip { top: 320px; }
 }
 
 .style-btn {
@@ -667,6 +668,12 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
     <h2>◈ NIGHT CITY</h2>
     <p style="font-size:13px;color:#90a0b8;margin:0 0 8px">Las calles no perdonan. ¿Cómo te llamas, choom?</p>
     <input type="text" id="input-name" class="name-input" maxlength="16" placeholder="Tu nombre..." autocomplete="off">
+    <p style="font-size:12px;color:var(--muted);margin:12px 0 6px;text-align:left">Género</p>
+    <div class="gender-picks">
+      <button type="button" class="gender-btn active" data-gender="male" onclick="pickGender(this)">♂ Masculino</button>
+      <button type="button" class="gender-btn" data-gender="female" onclick="pickGender(this)" disabled title="Próximamente">♀ Femenino (próx.)</button>
+    </div>
+    <div class="portrait-preview" id="portrait-preview"><img src="img/portrait-male-face.jpg" alt="Runner"></div>
     <p style="font-size:12px;color:var(--muted);margin:12px 0 6px;text-align:left">Estilo de runner</p>
     <div id="style-picks" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left;margin-bottom:12px">
       <button type="button" class="style-btn active" data-style="streetkid" onclick="pickStyle(this)">🏙 Streetkid<br><span style="font-size:10px;color:var(--muted)">+5% eddies</span></button>
@@ -686,13 +693,21 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
     <div class="settings-row"><label>Tema Afterlife</label>
       <button id="btn-theme" style="flex:0 0 auto;padding:6px 12px">Activar</button>
     </div>
+    <div class="settings-row"><label>Interfaz</label>
+      <select id="sel-layout" style="background:var(--card);color:var(--txt);border:1px solid var(--border);border-radius:6px;padding:6px 8px">
+        <option value="auto">Auto (recomendado)</option>
+        <option value="mobile">Móvil compacto</option>
+        <option value="pc">PC / tablet</option>
+      </select>
+    </div>
     <div class="action-row" style="flex-direction:column">
+      <button id="btn-fullscreen">⛶ Pantalla completa</button>
       <button class="green" id="btn-save">💾 Guardar partida</button>
       <button id="btn-load">📂 Cargar partida</button>
       <button class="danger" id="btn-reset">🗑 Reiniciar partida</button>
       <button class="ghost" id="btn-close-settings">Cerrar</button>
     </div>
-    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.1.5</span></div>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#5a6a7a">Night City Version <span id="settings-version">0.1.6</span></div>
   </div>
 </div>
 
@@ -714,7 +729,7 @@ input[type=range] { width: 120px; accent-color: var(--accent); }
 </div>
 
 <script>
-const VERSION = '0.1.5';
+const VERSION = '0.1.7';
 
 const RUNNER_STYLES = {
   streetkid: { name:'Streetkid', eddiesPct:0.05, maxHp:0, priceMod:0, hackDmg:0, dmg:0 },
@@ -731,9 +746,42 @@ const WEATHER_TYPES = [
   { id:'neon', name:'Noche neón', icon:'🌃', exploreMod:0.03, lootMod:0.1 },
 ];
 const DISTRICT_ICON = {
-  watson:'⛩', westbrook:'🏯', citycenter:'🏙', heywood:'🚗', pacifica:'🏖', santo:'🏭'
+  watson:'⛩', westbrook:'🏯', citycenter:'🏙', heywood:'🚗', pacifica:'🏖', santo:'🏭', badlands:'🏜'
 };
 let selectedStyle = 'streetkid';
+
+let selectedGender = 'male';
+function pickGender(btn) {
+  if (btn.disabled) return;
+  selectedGender = btn.dataset.gender;
+  document.querySelectorAll('.gender-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
+  var prev = document.querySelector('#portrait-preview img');
+  if (prev) prev.src = selectedGender === 'male' ? 'img/portrait-male-face.jpg' : 'img/portrait-male-face.jpg';
+}
+function applyLayout(mode) {
+  mode = mode || localStorage.getItem('nightcity_layout') || 'auto';
+  document.body.classList.remove('layout-pc','layout-mobile');
+  if (mode === 'auto') {
+    mode = window.innerWidth >= 700 ? 'pc' : 'mobile';
+  }
+  document.body.classList.add('layout-'+mode);
+  try { localStorage.setItem('nightcity_layout', localStorage.getItem('nightcity_layout')||'auto'); } catch(e){}
+  var sel = document.getElementById('sel-layout');
+  if (sel && document.activeElement !== sel) {
+    var stored = localStorage.getItem('nightcity_layout') || 'auto';
+    sel.value = stored;
+  }
+}
+function toggleFullscreen() {
+  try {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(function(){});
+    } else {
+      document.exitFullscreen();
+    }
+  } catch(e) { logMsg('Pantalla completa no disponible en este dispositivo.', 'sys'); }
+}
+
 function pickStyle(btn) {
   selectedStyle = btn.dataset.style;
   document.querySelectorAll('.style-btn').forEach(function(b){ b.classList.toggle('active', b===btn); });
@@ -774,43 +822,56 @@ function sfxWeapon(subtype) {
   else { playTone(350,0.05,'square',0.8); setTimeout(function(){playTone(200,0.06,'triangle',0.4);},30); }
 }
 
-/* Nombres como en Cyberpunk 2077 (ES): topónimos y facciones en inglés */
+/* Lore CP2077: 6 distritos + Badlands (Dogtown en Pacifica) */
 const DISTRICTS = [
-  { id:'watson', name:'Watson', desc:'Kabuki, Little China y Northside.', danger:2, flavor:'Neones parpadeantes, humo de street food y ozono de cables.',
+  { id:'watson', name:'Watson', desc:'Little China, Kabuki, Arasaka Waterfront y NID.', danger:2,
+    flavor:'El punto de partida. Mercados negros, clubes y antiguos astilleros al noroeste.',
     subs: [
+      { id:'littlechina', name:'Little China', faction:'Tyger Claws', danger:2, flavor:'Callejones estrechos, clínicas ilegales y street food 24/7.' },
       { id:'kabuki', name:'Kabuki', faction:'Tyger Claws', danger:2, flavor:'Mercados nocturnos, neones y garras al acecho.' },
-      { id:'littlechina', name:'Little China', faction:'Scavs', danger:2, flavor:'Callejones estrechos y clínicas ilegales.' },
-      { id:'northside', name:'Northside Industrial District', faction:'Maelstrom', danger:3, flavor:'Fábricas oxidadas y chrome oxidado.' },
+      { id:'arasakawaterfront', name:'Arasaka Waterfront', faction:'Corpo', danger:3, flavor:'Astilleros y muelles bajo la sombra de Arasaka.' },
+      { id:'nid', name:'Northside Industrial District', faction:'Maelstrom', danger:3, flavor:'Fábricas oxidadas, chrome oxidado y Maelstrom en casa.' },
     ]},
-  { id:'westbrook', name:'Westbrook', desc:'Japantown y Charter Hill.', danger:3, flavor:'Lujo y peligro a partes iguales.',
+  { id:'westbrook', name:'Westbrook', desc:'Japantown, Charter Hill y North Oak.', danger:3,
+    flavor:'Élite, ocio y lujo. Quien tiene eddies, vive aquí.',
     subs: [
-      { id:'japantown', name:'Japantown', faction:'Tyger Claws', danger:3, flavor:'Torii de neón y katana lista.' },
-      { id:'charterhill', name:'Charter Hill', faction:'Corpo', danger:2, flavor:'Residencias de ejecutivos y seguridad privada.' },
-      { id:'northoak', name:'North Oak', faction:'Corpo', danger:1, flavor:'Mansiones tras muros. Casi no hay calle.' },
+      { id:'japantown', name:'Japantown', faction:'Tyger Claws', danger:3, flavor:'Entretenimiento, torii de neón y territorio Tyger Claws.' },
+      { id:'charterhill', name:'Charter Hill', faction:'Corpo', danger:2, flavor:'Clase media-alta y residencias corporativas.' },
+      { id:'northoak', name:'North Oak', faction:'Corpo', danger:1, flavor:'Mansiones de la alta sociedad detrás de muros.' },
     ]},
-  { id:'citycenter', name:'City Center', desc:'Corpo Plaza y Downtown.', danger:4, flavor:'El dinero habla más fuerte que las balas.',
+  { id:'citycenter', name:'City Center', desc:'Corpo Plaza y Downtown.', danger:4,
+    flavor:'Corazón financiero. Rascacielos y sedes de megacorps.',
     subs: [
-      { id:'corpoplaza', name:'Corpo Plaza', faction:'Corpo', danger:4, flavor:'Torres Arasaka y drones de patrulla.' },
-      { id:'downtown', name:'Downtown', faction:'Corpo', danger:3, flavor:'Negocios, clubs y tiroteos discretos.' },
-      { id:'wellsprings_cc', name:'Corporate Plaza Annex', faction:'Corpo', danger:4, flavor:'Donde se mueve el capital de Night City.' },
+      { id:'corpoplaza', name:'Corpo Plaza', faction:'Corpo', danger:4, flavor:'Arasaka, Militech y torres que tocan el cielo.' },
+      { id:'downtown', name:'Downtown', faction:'Corpo', danger:3, flavor:'Negocios, clubs caros y tiroteos discretos.' },
     ]},
-  { id:'heywood', name:'Heywood', desc:'The Glen, Wellsprings, Vista del Rey.', danger:3, flavor:'Familia, honor y callejones.',
+  { id:'heywood', name:'Heywood', desc:'Wellsprings, The Glen y Vista del Rey.', danger:3,
+    flavor:'Residencial extenso: verdes al norte, asfalto denso al sur.',
     subs: [
+      { id:'wellsprings', name:'Wellsprings', faction:'6th Street', danger:2, flavor:'Banderas, rifles en azoteas y orgullo local.' },
       { id:'theglen', name:'The Glen', faction:'Valentinos', danger:3, flavor:'Murales, lowriders y lealtad de sangre.' },
       { id:'vistadelrey', name:'Vista del Rey', faction:'Valentinos', danger:3, flavor:'Territorio clásico Valentino.' },
-      { id:'wellsprings', name:'Wellsprings', faction:'6th Street', danger:2, flavor:'Banderas y rifles en las azoteas.' },
     ]},
-  { id:'pacifica', name:'Pacifica', desc:'Coastview y West Wind Estate.', danger:5, flavor:'Nadie viene sin un motivo muy bueno.',
-    subs: [
-      { id:'coastview', name:'Coastview', faction:'Voodoo Boys', danger:5, flavor:'Hoteles fantasma y netrunners haitianos.' },
-      { id:'westwind', name:'West Wind Estate', faction:'Animals', danger:4, flavor:'Gimnasios abandonados y fuerza bruta.' },
-      { id:'grandimperial', name:'Grand Imperial Mall', faction:'Voodoo Boys', danger:5, flavor:'El corazón podrido de Pacifica.' },
-    ]},
-  { id:'santo', name:'Santo Domingo', desc:'Arroyo y Rancho Coronado.', danger:3, flavor:'Fábricas, smog y trabajo duro.',
+  { id:'santo', name:'Santo Domingo', desc:'Arroyo y Rancho Coronado.', danger:3,
+    flavor:'Distrito industrial y obrero. Fábricas, energía y polvo.',
     subs: [
       { id:'arroyo', name:'Arroyo', faction:'6th Street', danger:3, flavor:'Plantas industriales y humo eterno.' },
-      { id:'rancho', name:'Rancho Coronado', faction:'6th Street', danger:2, flavor:'Barrios obreros y orgullo local.' },
-      { id:'badlandsedge', name:'Badlands Edge', faction:'Wraiths', danger:4, flavor:'Donde termina la ciudad y empieza el desierto.' },
+      { id:'rancho', name:'Rancho Coronado', faction:'6th Street', danger:2, flavor:'Barrios obreros y frontera con el páramo.' },
+      { id:'borderlands', name:'Frontera Aldecaldo', faction:'Aldecaldos', danger:3, flavor:'Donde los nómadas rozan la ciudad.' },
+    ]},
+  { id:'pacifica', name:'Pacifica', desc:'West Wind Estate, Coastview y Dogtown.', danger:5,
+    flavor:'Paraíso turístico fallido. Sin NCPD. Zona de combate.',
+    subs: [
+      { id:'westwind', name:'West Wind Estate', faction:'Animals', danger:4, flavor:'Gimnasios abandonados y fuerza bruta.' },
+      { id:'coastview', name:'Coastview', faction:'Voodoo Boys', danger:5, flavor:'Hoteles fantasma y netrunners haitianos.' },
+      { id:'dogtown', name:'Dogtown', faction:'Barghest', danger:5, flavor:'Sector amurallado. Phantom Liberty. Nadie entra gratis.' },
+    ]},
+  { id:'badlands', name:'Badlands', desc:'Desierto y páramo fuera de Night City.', danger:4,
+    flavor:'Tormentas de polvo, lluvia ácida e instalaciones de extracción.',
+    subs: [
+      { id:'aldecaldocamp', name:'Campamento Aldecaldo', faction:'Aldecaldos', danger:2, flavor:'Familia nómada, convoyes y lealtad.' },
+      { id:'wraithterritory', name:'Territorio Wraith', faction:'Wraiths', danger:5, flavor:'Bandidos del páramo. Sin piedad.' },
+      { id:'oilfields', name:'Campos de extracción', faction:'Wraiths', danger:4, flavor:'Torres, toxicidad y emboscadas.' },
     ]},
 ];
 
@@ -852,6 +913,9 @@ const ENEMIES = [
   { name:'Wraith', level:11, hp:95, dmg:19, loot:[23,24,59], eddies:[110,220], gang:'Wraiths' },
   { name:'Cyberpsico inestable', level:12, hp:140, dmg:24, loot:[25,60,101], eddies:[150,300], gang:'Cyberpsico', legendary:true },
   { name:'Arasaka Elite', level:14, hp:160, dmg:22, loot:[26,27,102], eddies:[200,350], gang:'Corpo', legendary:true },
+  { name:'Aldecaldo scout', level:4, hp:42, dmg:9, loot:[4,14,51], eddies:[40,80], gang:'Aldecaldos' },
+  { name:'Wraith raider', level:8, hp:78, dmg:16, loot:[8,18,56], eddies:[80,150], gang:'Wraiths' },
+  { name:'Barghest soldier', level:11, hp:110, dmg:18, loot:[20,21,58], eddies:[120,220], gang:'Barghest' },
 ];
 
 const MONTHS_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1169,7 +1233,7 @@ let P = {
   kills:{}, hours:20, minutes:47, day:14, month:10, year:2077,
   combat:null, log:[], named:false,
   pcMessages:[], pcNews:[], foodOrder:null, joyOrder:null,
-  streetCred:0, style:'streetkid', diary:[], weather:null,
+  streetCred:0, style:'streetkid', diary:[], weather:null, gender:'male',
 };
 let currentTab = 'map', invSub = 'bag', aptSub = 'rest', craftSub = 'scrap', skillCat = 'body';
 let shopSub = 'weapon', selectedFixer = 'regina', pcPage = 'home';
@@ -1208,6 +1272,8 @@ function rollWeather(districtId) {
   if (districtId === 'pacifica') pool = pool.concat([WEATHER_TYPES[1], WEATHER_TYPES[3]]);
   if (districtId === 'citycenter') pool = pool.concat([WEATHER_TYPES[0], WEATHER_TYPES[4]]);
   if (districtId === 'santo' || districtId === 'watson') pool = pool.concat([WEATHER_TYPES[2]]);
+  if (districtId === 'badlands') pool = [WEATHER_TYPES[2], WEATHER_TYPES[3], WEATHER_TYPES[3], WEATHER_TYPES[0]];
+  if (districtId === 'pacifica') pool = pool.concat([WEATHER_TYPES[1], WEATHER_TYPES[3]]);
   P.weather = pool[Math.floor(Math.random()*pool.length)];
   return P.weather;
 }
@@ -1328,11 +1394,11 @@ function recalcMaxHp() {
 }
 
 function save() {
-  try { localStorage.setItem('nightcity_v015', JSON.stringify(P)); return true; } catch(e){ return false; }
+  try { localStorage.setItem('nightcity_v016', JSON.stringify(P)); return true; } catch(e){ return false; }
 }
 function load() {
   try {
-    var raw = localStorage.getItem('nightcity_v015') || localStorage.getItem('nightcity_v010') || localStorage.getItem('nightcity_v009') || localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
+    var raw = localStorage.getItem('nightcity_v016') || localStorage.getItem('nightcity_v010') || localStorage.getItem('nightcity_v009') || localStorage.getItem('nightcity_v008') || localStorage.getItem('nightcity_v007') || localStorage.getItem('nightcity_v006') || localStorage.getItem('nightcity_v005');
     if (!raw) return false;
     var data = JSON.parse(raw);
     Object.assign(P, data);
@@ -1357,6 +1423,7 @@ function load() {
     if (!P.style) P.style = 'streetkid';
     if (!P.diary) P.diary = [];
     if (P.weather === undefined) P.weather = null;
+    if (!P.gender) P.gender = 'male';
     if (Array.isArray(P.equipped.cyberware)) {
       var map = {};
       P.equipped.cyberware.forEach(function(cid){
@@ -2295,7 +2362,7 @@ function renderMap(main) {
     '<div class="map-visual">'+
     DISTRICTS.map(function(d){
       var ico = DISTRICT_ICON[d.id]||'📍';
-      return '<div class="map-district '+(d.id===P.district?'current':'')+'" onclick="enterDistrict(\''+d.id+'\')">'+
+      return '<div class="map-district d-'+d.id+' '+(d.id===P.district?'current':'')+'" onclick="enterDistrict(\''+d.id+'\')">'+
         '<div class="map-ico">'+ico+'</div>'+
         '<div class="map-name">'+d.name+'</div>'+
         '<div class="map-meta">'+d.desc+'</div>'+
@@ -2458,7 +2525,7 @@ function openEquipModal(kind) {
 
 function renderChrome(main) {
   var html = '<div class="section-label">Chrome instalado</div>';
-  html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Toca un punto del cuerpo para instalar. Compra chrome en el <b>Mercado</b>.</p>';
+  html += '<p style="font-size:12px;color:var(--muted);margin:0 0 10px">Toca un slot para instalar chrome. El <b>Chip</b> (abajo) es el cyberdeck + hacks. Compra en <b>Mercado</b>.</p>';
   html += '<div class="chrome-silhouette-wrap"><div class="chrome-body">';
   html += BODY_SVG;
   CHROME_SLOTS.forEach(function(s){
@@ -2792,10 +2859,22 @@ document.getElementById('btn-load').addEventListener('click', function(){
 });
 document.getElementById('btn-reset').addEventListener('click', function(){
   if (confirm('¿Reiniciar partida?')) {
-    ['nightcity_v015','nightcity_v010','nightcity_v009','nightcity_v008','nightcity_v007','nightcity_v006','nightcity_v005'].forEach(function(k){ localStorage.removeItem(k); });
+    ['nightcity_v016','nightcity_v010','nightcity_v009','nightcity_v008','nightcity_v007','nightcity_v006','nightcity_v005'].forEach(function(k){ localStorage.removeItem(k); });
     location.reload();
   }
 });
+
+document.getElementById('btn-fullscreen').addEventListener('click', function(){ sfxClick(); toggleFullscreen(); });
+document.getElementById('sel-layout').addEventListener('change', function(){
+  try { localStorage.setItem('nightcity_layout', this.value); } catch(e){}
+  applyLayout(this.value === 'auto' ? 'auto' : this.value);
+  sfxClick();
+});
+window.addEventListener('resize', function(){
+  var m = localStorage.getItem('nightcity_layout') || 'auto';
+  if (m === 'auto') applyLayout('auto');
+});
+
 document.getElementById('btn-theme').addEventListener('click', function(){
   sfxClick();
   document.documentElement.classList.toggle('theme-afterlife');
@@ -2810,6 +2889,7 @@ document.getElementById('btn-start').addEventListener('click', function(){
   P.skillPoints = 0; P.unlockedSkills = [];
   P.mapView = 'city'; P.viewDistrict = null; P.viewSub = null;
   P.style = selectedStyle || 'streetkid';
+  P.gender = selectedGender || 'male';
   P.streetCred = 0; P.diary = [];
   recalcMaxHp(); P.hp = P.maxHp;
   sfxLevel();
@@ -2833,6 +2913,9 @@ document.getElementById('btn-loot-leave').addEventListener('click', function(){ 
   } catch(e){}
   var verEl = document.getElementById('settings-version');
   if (verEl) verEl.textContent = VERSION;
+  applyLayout(localStorage.getItem('nightcity_layout') || 'auto');
+  var sel = document.getElementById('sel-layout');
+  if (sel) sel.value = localStorage.getItem('nightcity_layout') || 'auto';
   var hasSave = load();
   if (hasSave && P.named && P.name) {
     document.getElementById('modal-name').classList.add('hidden');
